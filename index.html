@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>睡眠時間計測</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>睡眠時間計測アプリ</h1>
+
+    <div class="button-group">
+        <button id="start-btn">計測を開始する</button>
+        <button id="end-btn" disabled>計測を終了する</button>
+    </div>
+
+    <div class="result-area">
+        <p id="start-time-display">就寝時間: --:--:--</p>
+        <p id="end-time-display">起床時間: --:--:--</p>
+        <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
+        
+        <p id="error-message" class="error"></p>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
