@@ -2,11 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>睡眠時間計測</title>
+    <title>睡眠管理アプリ - 目標設定</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>睡眠時間計測アプリ</h1>
+    <h1>睡眠管理アプリ</h1>
+
+    <div class="target-setting">
+        <h3>起床目標時間の設定</h3>
+        <input type="time" id="target-time-input">
+        <button id="set-target-btn">目標を保存</button>
+        <p id="current-target-display">現在の目標: 未設定</p>
+    </div>
+
+    <hr>
 
     <div class="button-group">
         <button id="start-btn">計測を開始する</button>
@@ -18,6 +27,7 @@
         <p id="end-time-display">起床時間: --:--:--</p>
         <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
         
+        <p id="feedback-message" style="font-size: 1.2em; font-weight: bold; color: #2ecc71;"></p>
         <p id="error-message" class="error"></p>
     </div>
 

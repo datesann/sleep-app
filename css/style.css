@@ -1,32 +1,35 @@
 body {
     font-family: sans-serif;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 30px;
     background-color: #f0f4f8;
     color: #333;
 }
 
+.target-setting {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 20px;
+    border: 2px solid #3498db;
+}
+
 .button-group {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 button {
     padding: 12px 24px;
     font-size: 16px;
-    margin: 10px;
+    margin: 5px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
     background-color: #3498db;
     color: white;
-    transition: background-color 0.3s;
 }
 
-button:hover {
-    background-color: #2980b9;
-}
-
-/* 無効化（押せない）状態のボタンのデザイン */
 button:disabled {
     background-color: #bdc3c7;
     cursor: not-allowed;
@@ -38,10 +41,11 @@ button:disabled {
     border-radius: 10px;
     display: inline-block;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    min-width: 300px;
+    min-width: 350px;
 }
 
 .error {
     color: #e74c3c;
     font-weight: bold;
+    margin-top: 10px;
 }
