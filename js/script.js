@@ -1,6 +1,7 @@
 // 要素の取得
 const targetInput = document.getElementById('target-time-input');
 const setTargetBtn = document.getElementById('set-target-btn');
+const clearTargetBtn = document.getElementById('clear-target-btn');
 const currentTargetDisplay = document.getElementById('current-target-display');
 
 const startBtn = document.getElementById('start-btn');
@@ -24,7 +25,12 @@ function formatTime(date) {
 // ==========================================
 function updateTargetDisplay() {
     const savedTarget = localStorage.getItem('targetWakeUpTime');
-    currentTargetDisplay.textContent = savedTarget ? `現在の目標: ${savedTarget}` : "現在の目標: 未設定";
+    if (savedTarget) {
+        currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
+    } else {
+        currentTargetDisplay.textContent = "現在の目標: 未設定";
+    }
+    targetInput.value = "00:00";
 }
 
 setTargetBtn.addEventListener('click', () => {
@@ -37,6 +43,12 @@ setTargetBtn.addEventListener('click', () => {
     }
 });
 
+clearTargetBtn.addEventListener('click', () => {
+    localStorage.removeItem('targetWakeUpTime');
+    updateTargetDisplay();
+    errorMessage.textContent = "";
+});
+
 // ==========================================
 // 画面起動時の復元処理
 // ==========================================
@@ -47,28 +59,35 @@ if (savedStartTime) {
     const startTime = new Date(parseInt(savedStartTime, 10));
     startTimeDisplay.textContent = `就寝時間: ${formatTime(startTime)}`;
     durationDisplay.textContent = `睡眠時間: 計測中...`;
+    
     startBtn.disabled = true;
     endBtn.disabled = false;
+    
+    targetInput.disabled = true;
+    setTargetBtn.disabled = true;
+    clearTargetBtn.disabled = true;
 }
 
 // ==========================================
 // 計測開始
 // ==========================================
 startBtn.addEventListener('click', () => {
-    if (!localStorage.getItem('targetWakeUpTime')) {
-        errorMessage.textContent = "エラー: 先に起床目標時間を設定してください。";
-        return;
-    }
-    
     errorMessage.textContent = "";
     feedbackMessage.textContent = "";
+    endTimeDisplay.textContent = "起床時間: --:--:--";
+    
     const now = new Date();
     localStorage.setItem('sleepStartTime', now.getTime());
     
     startTimeDisplay.textContent = `就寝時間: ${formatTime(now)}`;
     durationDisplay.textContent = `睡眠時間: 計測中...`;
+    
     startBtn.disabled = true;
     endBtn.disabled = false;
+    
+    targetInput.disabled = true;
+    setTargetBtn.disabled = true;
+    clearTargetBtn.disabled = true;
 });
 
 // ==========================================
@@ -78,8 +97,8 @@ endBtn.addEventListener('click', () => {
     const storedStartTimeStr = localStorage.getItem('sleepStartTime');
     const targetTimeStr = localStorage.getItem('targetWakeUpTime');
 
-    if (!storedStartTimeStr || !targetTimeStr) {
-        errorMessage.textContent = "エラー: データが不足しています。";
+    if (!storedStartTimeStr) {
+        errorMessage.textContent = "エラー: 計測データが見つかりません。";
         return;
     }
 
@@ -96,7 +115,7 @@ endBtn.addEventListener('click', () => {
     const seconds = diffSec % 60;
     durationDisplay.textContent = `睡眠時間: ${hours}時間 ${minutes}分 ${seconds}秒`;
 
-    // 2. 計測時間のバリデーション（方針4: 入力検証）
+    // 2. 計測時間のバリデーション
     if (diffSec < MIN_DURATION_SEC) {
         errorMessage.textContent = `エラー: ${MIN_DURATION_SEC}秒未満は計測できません。`;
         finishMeasurement();
@@ -109,29 +128,41 @@ endBtn.addEventListener('click', () => {
     }
 
     // 3. 起床時刻のフィードバック判定
-    const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
-    const targetDate = new Date(endTime); // 起床日と同じ日付でオブジェクト作成
-    targetDate.setHours(targetHour, targetMin, 0, 0);
+    if (targetTimeStr) {
+        const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
+        const targetDate = new Date(endTime);
+        targetDate.setHours(targetHour, targetMin, 0, 0);
 
-    // 実際の起床時間と目標時間の差（秒）を計算
-    const timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
+        const timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
 
-    if (timeGapSec < -5) {
-        feedbackMessage.textContent = "おはようございます！早起きですね！";
-        feedbackMessage.style.color = "#3498db"; // 青系
-    } else if (timeGapSec > 5) {
-        feedbackMessage.textContent = "寝坊ですかな？";
-        feedbackMessage.style.color = "#e67e22"; // オレンジ系
+        if (timeGapSec < -60) {
+            feedbackMessage.textContent = "おはようございます！早起きですね！";
+            feedbackMessage.style.color = "#3498db"; 
+        } else if (timeGapSec > 60) {
+            feedbackMessage.textContent = "寝坊ですかな？";
+            feedbackMessage.style.color = "#e67e22"; 
+        } else {
+            feedbackMessage.textContent = "おはようございます！いい調子ですね！";
+            feedbackMessage.style.color = "#2ecc71"; 
+        }
     } else {
-        feedbackMessage.textContent = "おはようございます！いい調子ですね！";
-        feedbackMessage.style.color = "#2ecc71"; // 緑系
+        // 【変更点：目標が未設定の場合】新しいメッセージに変更
+        feedbackMessage.textContent = "おはようございます！結果はどうですか？";
+        feedbackMessage.style.color = "#333333";
     }
 
     finishMeasurement();
 });
 
+// ==========================================
+// 計測終了時の共通リセット処理
+// ==========================================
 function finishMeasurement() {
     localStorage.removeItem('sleepStartTime');
     startBtn.disabled = false;
     endBtn.disabled = true;
+    
+    targetInput.disabled = false;
+    setTargetBtn.disabled = false;
+    clearTargetBtn.disabled = false;
 }

@@ -35,6 +35,15 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* 削除ボタン専用のスタイル */
+#clear-target-btn {
+    background-color: #e74c3c;
+}
+#clear-target-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
 .result-area {
     background: white;
     padding: 20px;

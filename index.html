@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>睡眠管理アプリ - 目標設定</title>
+    <title>睡眠管理アプリ - 目標設定（任意）</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -10,8 +10,9 @@
 
     <div class="target-setting">
         <h3>起床目標時間の設定</h3>
-        <input type="time" id="target-time-input">
+        <input type="time" id="target-time-input" value="00:00">
         <button id="set-target-btn">目標を保存</button>
+        <button id="clear-target-btn">目標を削除</button>
         <p id="current-target-display">現在の目標: 未設定</p>
     </div>
 
@@ -27,7 +28,7 @@
         <p id="end-time-display">起床時間: --:--:--</p>
         <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
         
-        <p id="feedback-message" style="font-size: 1.2em; font-weight: bold; color: #2ecc71;"></p>
+        <p id="feedback-message" style="font-size: 1.2em; font-weight: bold;"></p>
         <p id="error-message" class="error"></p>
     </div>
 
