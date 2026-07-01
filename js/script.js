@@ -1,4 +1,6 @@
-// 要素の取得
+// ==========================================
+// 初期設定と要素取得
+// ==========================================
 const targetInput = document.getElementById('target-time-input');
 const setTargetBtn = document.getElementById('set-target-btn');
 const clearTargetBtn = document.getElementById('clear-target-btn');
@@ -13,36 +15,150 @@ const feedbackMessage = document.getElementById('feedback-message');
 const errorMessage = document.getElementById('error-message');
 
 const stampCountDisplay = document.getElementById('stamp-count');
+
 const calendarTitle = document.getElementById('calendar-title');
 const calendarGrid = document.getElementById('calendar-grid');
 const prevMonthBtn = document.getElementById('prev-month-btn');
 const nextMonthBtn = document.getElementById('next-month-btn');
 
-// 定数の設定
+const shopItemsArea = document.getElementById('shop-items');
+const inventoryItemsArea = document.getElementById('inventory-items');
+
+// モーダル関連の要素取得
+const purchaseModal = document.getElementById('purchase-modal');
+const modalMessage = document.getElementById('modal-message');
+const modalYesBtn = document.getElementById('modal-yes-btn');
+const modalNoBtn = document.getElementById('modal-no-btn');
+
 const MIN_DURATION_SEC = 3;   
 const MAX_DURATION_SEC = 300; 
-
-// 現在表示しているカレンダーの年月を管理するオブジェクト
 let displayDate = new Date();
+let pendingPurchase = null; // 購入保留中のアイテム情報を保持する変数
 
-function formatTime(date) {
-    return date.toLocaleTimeString('ja-JP');
-}
+// ==========================================
+// 着せ替え（テーマ）データ定義
+// ==========================================
+const THEMES = {
+    "default": { name: "デフォルト (青/白)", cost: 0, colors: { bg: "#f0f4f8", box: "#ffffff", primary: "#3498db", secondary: "#2c3e50", text: "#333333", border: "#3498db", header: "#34495e" } },
+    "red_1": { name: "単色: レッド", cost: 10, colors: { bg: "#fdebd0", box: "#fff5e6", primary: "#e74c3c", secondary: "#c0392b", text: "#4a2311", border: "#e74c3c", header: "#c0392b" } },
+    "blue_1": { name: "単色: ダークブルー", cost: 10, colors: { bg: "#eaf2f8", box: "#f4f6f7", primary: "#2980b9", secondary: "#154360", text: "#1b4f72", border: "#2980b9", header: "#154360" } },
+    "yellow_1": { name: "単色: イエロー", cost: 10, colors: { bg: "#fcf3cf", box: "#fef9e7", primary: "#f1c40f", secondary: "#b7950b", text: "#7d6608", border: "#f1c40f", header: "#b7950b" } },
+    "red_green_2": { name: "2色: レッド＆グリーン", cost: 20, colors: { bg: "#fdedec", box: "#e9f7ef", primary: "#e74c3c", secondary: "#27ae60", text: "#2c3e50", border: "#27ae60", header: "#e74c3c" } },
+    "purple_blue_2": { name: "2色: パープル＆ブルー", cost: 20, colors: { bg: "#f4ecf7", box: "#ebf5fb", primary: "#9b59b6", secondary: "#2980b9", text: "#34495e", border: "#8e44ad", header: "#2980b9" } },
+    "tricolor_3": { name: "3色: トリコロール", cost: 30, colors: { bg: "#fdfefe", box: "#eaf2f8", primary: "#e74c3c", secondary: "#2980b9", text: "#17202a", border: "#e74c3c", header: "#2c3e50" } },
+    "forest_3": { name: "3色: フォレスト", cost: 30, colors: { bg: "#e8f8f5", box: "#fcf3cf", primary: "#1abc9c", secondary: "#117a65", text: "#145a32", border: "#f1c40f", header: "#117a65" } }
+};
 
+// ==========================================
+// ユーティリティ関数
+// ==========================================
+function formatTime(date) { return date.toLocaleTimeString('ja-JP'); }
 function getLocalDateString(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
+function getTotalStamps() { return parseInt(localStorage.getItem('sleepAppStamps') || '0', 10); }
+function setTotalStamps(val) {
+    localStorage.setItem('sleepAppStamps', val);
+    stampCountDisplay.textContent = val;
+}
+function getOwnedThemes() { return JSON.parse(localStorage.getItem('ownedThemes') || '["default"]'); }
+function setOwnedThemes(themesArray) { localStorage.setItem('ownedThemes', JSON.stringify(themesArray)); }
 
 // ==========================================
-// スタンプ数の管理
+// 着せ替え機能ロジック
 // ==========================================
-function updateStampDisplay() {
-    const stamps = parseInt(localStorage.getItem('sleepAppStamps') || '0', 10);
-    stampCountDisplay.textContent = stamps;
+function applyTheme(themeId) {
+    const theme = THEMES[themeId];
+    if (!theme) return;
+    
+    document.documentElement.style.setProperty('--bg-color', theme.colors.bg);
+    document.documentElement.style.setProperty('--box-bg', theme.colors.box);
+    document.documentElement.style.setProperty('--primary-color', theme.colors.primary);
+    document.documentElement.style.setProperty('--secondary-color', theme.colors.secondary);
+    document.documentElement.style.setProperty('--text-color', theme.colors.text);
+    document.documentElement.style.setProperty('--border-color', theme.colors.border);
+    document.documentElement.style.setProperty('--calendar-header', theme.colors.header);
+
+    localStorage.setItem('currentTheme', themeId);
 }
+
+function renderShopAndInventory() {
+    shopItemsArea.innerHTML = "";
+    inventoryItemsArea.innerHTML = "";
+    
+    const owned = getOwnedThemes();
+    const currentStamps = getTotalStamps();
+    const currentTheme = localStorage.getItem('currentTheme') || 'default';
+
+    for (const [id, theme] of Object.entries(THEMES)) {
+        const card = document.createElement('div');
+        card.className = "theme-card";
+        
+        const info = document.createElement('div');
+        info.innerHTML = `<h4>${theme.name}</h4>`;
+
+        if (owned.includes(id)) {
+            info.innerHTML += `<span>入手済み</span>`;
+            const actionBtn = document.createElement('button');
+            
+            if (currentTheme === id) {
+                actionBtn.textContent = "適用中";
+                actionBtn.disabled = true;
+            } else {
+                actionBtn.textContent = "着せ替える";
+                actionBtn.onclick = () => {
+                    applyTheme(id);
+                    renderShopAndInventory(); 
+                };
+            }
+            card.appendChild(info);
+            card.appendChild(actionBtn);
+            inventoryItemsArea.appendChild(card);
+
+        } else {
+            info.innerHTML += `<span>必要スタンプ: ${theme.cost}個</span>`;
+            const actionBtn = document.createElement('button');
+            actionBtn.textContent = "購入";
+            
+            if (currentStamps < theme.cost) {
+                actionBtn.disabled = true;
+                actionBtn.style.backgroundColor = "#95a5a6";
+            } else {
+                actionBtn.onclick = () => {
+                    pendingPurchase = { id: id, cost: theme.cost };
+                    modalMessage.innerHTML = `${theme.name} を ${theme.cost}スタンプで購入しますか？`;
+                    purchaseModal.classList.remove('hidden'); 
+                };
+            }
+            card.appendChild(info);
+            card.appendChild(actionBtn);
+            shopItemsArea.appendChild(card);
+        }
+    }
+}
+
+// モーダルの「はい」ボタンを押したときの処理
+modalYesBtn.addEventListener('click', () => {
+    if (pendingPurchase) {
+        const currentStamps = getTotalStamps();
+        setTotalStamps(currentStamps - pendingPurchase.cost);
+        
+        const newOwned = getOwnedThemes();
+        newOwned.push(pendingPurchase.id);
+        setOwnedThemes(newOwned);
+        
+        renderShopAndInventory();
+    }
+    purchaseModal.classList.add('hidden');
+    pendingPurchase = null;
+});
+
+// モーダルの「いいえ」ボタンを押したときの処理
+modalNoBtn.addEventListener('click', () => {
+    purchaseModal.classList.add('hidden');
+    pendingPurchase = null;
+});
 
 // ==========================================
 // 目標時間の管理
@@ -57,7 +173,6 @@ function updateTargetDisplay() {
         targetInput.value = "00:00";
     }
 }
-
 setTargetBtn.addEventListener('click', () => {
     if (targetInput.value) {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
@@ -67,7 +182,6 @@ setTargetBtn.addEventListener('click', () => {
         errorMessage.textContent = "エラー: 起床時間を入力してください。";
     }
 });
-
 clearTargetBtn.addEventListener('click', () => {
     localStorage.removeItem('targetWakeUpTime');
     updateTargetDisplay();
@@ -79,13 +193,11 @@ clearTargetBtn.addEventListener('click', () => {
 // ==========================================
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
-    
     const realToday = new Date(); 
     const viewYear = displayDate.getFullYear();
     const viewMonth = displayDate.getMonth(); 
     
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
-    
     const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
     prevMonthBtn.disabled = (monthDiff <= -1); 
     nextMonthBtn.disabled = (monthDiff >= 1);  
@@ -103,14 +215,12 @@ function renderCalendar() {
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
     
     for (let i = 0; i < firstDayIndex; i++) {
-        const emptyCell = document.createElement("div");
-        calendarGrid.appendChild(emptyCell);
+        calendarGrid.appendChild(document.createElement("div"));
     }
     
     for (let day = 1; day <= totalDays; day++) {
         const dayCell = document.createElement("div");
         dayCell.className = "calendar-day";
-        
         if (day === realToday.getDate() && viewMonth === realToday.getMonth() && viewYear === realToday.getFullYear()) {
             dayCell.classList.add("today");
         }
@@ -124,22 +234,12 @@ function renderCalendar() {
         
         if (history[dateKey]) {
             const data = history[dateKey];
-            
-            // 【修正】スタンプ表示エリアの処理
             if (data.hasStamp) {
                 const stampDiv = document.createElement("div");
                 stampDiv.className = "day-stamp";
-                
-                // 通常は「💮」、ボーナス日なら「💮🎁✨」を表示
-                if (data.isBonus) {
-                    stampDiv.textContent = "💮🎁✨"; 
-                } else {
-                    stampDiv.textContent = "💮";
-                }
-                
+                stampDiv.textContent = data.isBonus ? "💮🎁✨" : "💮"; 
                 dayCell.appendChild(stampDiv);
             }
-            
             const infoDiv = document.createElement("div");
             infoDiv.className = "day-info";
             infoDiv.innerHTML = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠: ${data.duration}`;
@@ -149,173 +249,118 @@ function renderCalendar() {
     }
 }
 
-prevMonthBtn.addEventListener('click', () => {
-    displayDate.setMonth(displayDate.getMonth() - 1);
-    renderCalendar();
-});
-nextMonthBtn.addEventListener('click', () => {
-    displayDate.setMonth(displayDate.getMonth() + 1);
-    renderCalendar();
-});
+prevMonthBtn.addEventListener('click', () => { displayDate.setMonth(displayDate.getMonth() - 1); renderCalendar(); });
+nextMonthBtn.addEventListener('click', () => { displayDate.setMonth(displayDate.getMonth() + 1); renderCalendar(); });
 
 // ==========================================
-// 画面起動時の復元処理
-// ==========================================
-updateTargetDisplay();
-updateStampDisplay(); 
-renderCalendar(); 
-
-const savedStartTime = localStorage.getItem('sleepStartTime');
-if (savedStartTime) {
-    const startTime = new Date(parseInt(savedStartTime, 10));
-    startTimeDisplay.textContent = `就寝時間: ${formatTime(startTime)}`;
-    durationDisplay.textContent = `睡眠時間: 計測中...`;
-    
-    startBtn.disabled = true;
-    endBtn.disabled = false;
-    
-    targetInput.disabled = true;
-    setTargetBtn.disabled = true;
-    clearTargetBtn.disabled = true;
-}
-
-// ==========================================
-// 計測開始
+// 計測処理
 // ==========================================
 startBtn.addEventListener('click', () => {
     errorMessage.textContent = "";
     feedbackMessage.textContent = "";
     endTimeDisplay.textContent = "起床時間: --:--:--";
-    
     const now = new Date();
     localStorage.setItem('sleepStartTime', now.getTime());
-    
     startTimeDisplay.textContent = `就寝時間: ${formatTime(now)}`;
     durationDisplay.textContent = `睡眠時間: 計測中...`;
     
-    startBtn.disabled = true;
-    endBtn.disabled = false;
-    
-    targetInput.disabled = true;
-    setTargetBtn.disabled = true;
-    clearTargetBtn.disabled = true;
+    startBtn.disabled = true; endBtn.disabled = false;
+    targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
 });
 
-// ==========================================
-// 計測終了（判定ロジック）
-// ==========================================
 endBtn.addEventListener('click', () => {
     const storedStartTimeStr = localStorage.getItem('sleepStartTime');
     const targetTimeStr = localStorage.getItem('targetWakeUpTime');
-
-    if (!storedStartTimeStr) {
-        errorMessage.textContent = "エラー: 計測データが見つかりません。";
-        return;
-    }
+    if (!storedStartTimeStr) { errorMessage.textContent = "エラー: 計測データが見つかりません。"; return; }
 
     const startTimeMs = parseInt(storedStartTimeStr, 10);
     const startTime = new Date(startTimeMs);
     const endTime = new Date();
     endTimeDisplay.textContent = `起床時間: ${formatTime(endTime)}`;
 
-    const diffMs = endTime.getTime() - startTimeMs;
-    const diffSec = Math.floor(diffMs / 1000);
-
-    const hours = Math.floor(diffSec / 3600);
-    const minutes = Math.floor((diffSec % 3600) / 60);
-    const seconds = diffSec % 60;
-    const durationText = `${hours}時間 ${minutes}分 ${seconds}秒`;
+    const diffSec = Math.floor((endTime.getTime() - startTimeMs) / 1000);
+    const durationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
     durationDisplay.textContent = `睡眠時間: ${durationText}`;
 
     if (diffSec < MIN_DURATION_SEC) {
         errorMessage.textContent = `エラー: ${MIN_DURATION_SEC}秒未満は計測できません。`;
-        finishMeasurement();
-        return;
+        finishMeasurement(); return;
     }
     if (diffSec > MAX_DURATION_SEC) {
-        errorMessage.textContent = `エラー: 5分（${MAX_DURATION_SEC}秒）を超えたため、計測を終了しました。`;
-        finishMeasurement();
-        return;
+        errorMessage.textContent = `エラー: 5分（${MAX_DURATION_SEC}秒）を超えました。`;
+        finishMeasurement(); return;
     }
 
     let isStampEarned = false; 
-
     if (targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
         targetDate.setHours(targetHour, targetMin, 0, 0);
-
         const timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
 
         if (timeGapSec < -60) {
-            feedbackMessage.textContent = "おはようございます！早起きですね！";
-            feedbackMessage.style.color = "#3498db"; 
+            feedbackMessage.textContent = "早起きですね！"; feedbackMessage.style.color = "var(--primary-color)"; 
         } else if (timeGapSec > 60) {
-            feedbackMessage.textContent = "寝坊ですかな？";
-            feedbackMessage.style.color = "#e67e22"; 
+            feedbackMessage.textContent = "寝坊ですかな？"; feedbackMessage.style.color = "#e67e22"; 
         } else {
-            feedbackMessage.textContent = "おはようございます！いい調子ですね！";
-            feedbackMessage.style.color = "#2ecc71"; 
+            feedbackMessage.textContent = "いい調子ですね！"; feedbackMessage.style.color = "#2ecc71"; 
             isStampEarned = true;
         }
     } else {
-        feedbackMessage.textContent = "おはようございます！結果はどうですか？";
-        feedbackMessage.style.color = "#333333";
+        feedbackMessage.textContent = "結果はどうですか？"; feedbackMessage.style.color = "var(--text-color)";
     }
 
     const dateKey = getLocalDateString(endTime); 
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
-    let totalStamps = parseInt(localStorage.getItem('sleepAppStamps') || '0', 10);
+    let totalStamps = getTotalStamps();
     let isBonusEarned = false;
 
     if (isStampEarned) {
         totalStamps += 1; 
-
-        // 過去6日間連続でスタンプがあるかチェック
         let consecutiveDays = 1; 
         for (let i = 1; i <= 6; i++) {
             const checkDate = new Date(endTime);
             checkDate.setDate(checkDate.getDate() - i);
             const checkKey = getLocalDateString(checkDate);
-            
-            if (history[checkKey] && history[checkKey].hasStamp) {
-                consecutiveDays++;
-            } else {
-                break; 
-            }
+            if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++;
+            else break; 
         }
-
-        // 7日連続を達成した場合
         if (consecutiveDays === 7) {
-            totalStamps += 1; // ボーナススタンプを+1
+            totalStamps += 1; 
             isBonusEarned = true;
-            feedbackMessage.textContent += " 🎉 7日連続達成ボーナス！追加スタンプ獲得！";
-            feedbackMessage.style.color = "#e74c3c"; 
+            feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！";
         }
     }
 
-    history[dateKey] = {
-        start: formatTime(startTime),
-        end: formatTime(endTime),
-        duration: durationText,
-        hasStamp: isStampEarned,
-        isBonus: isBonusEarned 
-    };
+    history[dateKey] = { start: formatTime(startTime), end: formatTime(endTime), duration: durationText, hasStamp: isStampEarned, isBonus: isBonusEarned };
     
     localStorage.setItem('sleepAppHistory', JSON.stringify(history));
-    localStorage.setItem('sleepAppStamps', totalStamps);
+    setTotalStamps(totalStamps);
     
-    updateStampDisplay(); 
     renderCalendar(); 
+    renderShopAndInventory(); 
     finishMeasurement();
 });
 
 function finishMeasurement() {
     localStorage.removeItem('sleepStartTime');
-    startBtn.disabled = false;
-    endBtn.disabled = true;
-    
-    targetInput.disabled = false;
-    setTargetBtn.disabled = false;
-    clearTargetBtn.disabled = false;
+    startBtn.disabled = false; endBtn.disabled = true;
+    targetInput.disabled = false; setTargetBtn.disabled = false; clearTargetBtn.disabled = false;
+}
+
+// ==========================================
+// 画面起動時の初期化処理
+// ==========================================
+setTotalStamps(getTotalStamps());
+updateTargetDisplay();
+renderCalendar();
+applyTheme(localStorage.getItem('currentTheme') || 'default');
+renderShopAndInventory();
+
+const savedStartTime = localStorage.getItem('sleepStartTime');
+if (savedStartTime) {
+    startTimeDisplay.textContent = `就寝時間: ${formatTime(new Date(parseInt(savedStartTime, 10)))}`;
+    durationDisplay.textContent = `睡眠時間: 計測中...`;
+    startBtn.disabled = true; endBtn.disabled = false;
+    targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
 }

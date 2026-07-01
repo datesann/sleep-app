@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>睡眠管理アプリ - 機能拡張版</title>
+    <title>睡眠管理アプリ - 着せ替え機能実装版</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
         <h3>起床目標時間の設定</h3>
         <input type="time" id="target-time-input" value="00:00">
         <button id="set-target-btn">目標を保存</button>
-        <button id="clear-target-btn">目標を削除</button>
+        <button id="clear-target-btn" class="danger-btn">目標を削除</button>
         <p id="current-target-display">現在の目標: 未設定</p>
     </div>
 
@@ -32,8 +32,24 @@
         <p id="end-time-display">起床時間: --:--:--</p>
         <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
         
-        <p id="feedback-message" style="font-size: 1.2em; font-weight: bold;"></p>
+        <p id="feedback-message" class="feedback-msg"></p>
         <p id="error-message" class="error"></p>
+    </div>
+
+    <hr>
+
+    <div class="theme-section">
+        <div class="theme-shop">
+            <h2>🛒 着せ替えショップ</h2>
+            <div id="shop-items" class="theme-grid">
+                </div>
+        </div>
+
+        <div class="theme-inventory">
+            <h2>👗 所持している着せ替え</h2>
+            <div id="inventory-items" class="theme-grid">
+                </div>
+        </div>
     </div>
 
     <hr>
@@ -45,6 +61,16 @@
             <button id="next-month-btn">翌月 ▶</button>
         </div>
         <div class="calendar-grid" id="calendar-grid"></div>
+    </div>
+
+    <div id="purchase-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p id="modal-message">購入しますか？</p>
+            <div class="modal-buttons">
+                <button id="modal-yes-btn">はい</button>
+                <button id="modal-no-btn" class="danger-btn">いいえ</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/script.js"></script>
