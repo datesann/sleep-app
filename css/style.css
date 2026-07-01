@@ -35,7 +35,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* 削除ボタン専用のスタイル */
 #clear-target-btn {
     background-color: #e74c3c;
 }
@@ -57,4 +56,20 @@ button:disabled {
     color: #e74c3c;
     font-weight: bold;
     margin-top: 10px;
+}
+
+/* ==========================================
+   【追加】スタンプエリアのスタイル
+   ========================================== */
+.stamp-area {
+    background: #fff9c4;
+    padding: 5px 20px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 20px;
+    border: 2px solid #f1c40f;
+    color: #d35400;
+}
+.stamp-area h3 {
+    margin: 10px 0;
 }

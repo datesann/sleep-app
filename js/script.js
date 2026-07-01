@@ -12,25 +12,38 @@ const durationDisplay = document.getElementById('duration-display');
 const feedbackMessage = document.getElementById('feedback-message');
 const errorMessage = document.getElementById('error-message');
 
+const stampCountDisplay = document.getElementById('stamp-count');
+
 // 定数の設定
-const MIN_DURATION_SEC = 3;   // 最小3秒
-const MAX_DURATION_SEC = 300; // 最大5分 (300秒)
+const MIN_DURATION_SEC = 3;   
+const MAX_DURATION_SEC = 300; 
 
 function formatTime(date) {
     return date.toLocaleTimeString('ja-JP');
 }
 
 // ==========================================
-// 目標時間の管理
+// スタンプ数の管理
+// ==========================================
+function updateStampDisplay() {
+    const stamps = parseInt(localStorage.getItem('sleepAppStamps') || '0', 10);
+    stampCountDisplay.textContent = stamps;
+}
+
+// ==========================================
+// 目標時間の管理（修正ポイント）
 // ==========================================
 function updateTargetDisplay() {
     const savedTarget = localStorage.getItem('targetWakeUpTime');
     if (savedTarget) {
         currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
+        // 【修正】前回設定した目標時間がある場合は、入力欄（時刻設定）にもその時間を保持させる
+        targetInput.value = savedTarget;
     } else {
         currentTargetDisplay.textContent = "現在の目標: 未設定";
+        // 目標がない（未設定・削除された）場合は、現在時刻ではなく「00:00」に固定する
+        targetInput.value = "00:00";
     }
-    targetInput.value = "00:00";
 }
 
 setTargetBtn.addEventListener('click', () => {
@@ -52,7 +65,8 @@ clearTargetBtn.addEventListener('click', () => {
 // ==========================================
 // 画面起動時の復元処理
 // ==========================================
-updateTargetDisplay();
+updateTargetDisplay(); // 起動時にここを呼び出し、保存された時間を入力欄にもしっかり復元します
+updateStampDisplay(); 
 
 const savedStartTime = localStorage.getItem('sleepStartTime');
 if (savedStartTime) {
@@ -106,7 +120,6 @@ endBtn.addEventListener('click', () => {
     const endTime = new Date();
     endTimeDisplay.textContent = `起床時間: ${formatTime(endTime)}`;
 
-    // 1. 睡眠時間の計算
     const diffMs = endTime.getTime() - startTimeMs;
     const diffSec = Math.floor(diffMs / 1000);
 
@@ -115,7 +128,6 @@ endBtn.addEventListener('click', () => {
     const seconds = diffSec % 60;
     durationDisplay.textContent = `睡眠時間: ${hours}時間 ${minutes}分 ${seconds}秒`;
 
-    // 2. 計測時間のバリデーション
     if (diffSec < MIN_DURATION_SEC) {
         errorMessage.textContent = `エラー: ${MIN_DURATION_SEC}秒未満は計測できません。`;
         finishMeasurement();
@@ -127,7 +139,7 @@ endBtn.addEventListener('click', () => {
         return;
     }
 
-    // 3. 起床時刻のフィードバック判定
+    // 起床時刻のフィードバックとスタンプ判定
     if (targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
@@ -144,9 +156,13 @@ endBtn.addEventListener('click', () => {
         } else {
             feedbackMessage.textContent = "おはようございます！いい調子ですね！";
             feedbackMessage.style.color = "#2ecc71"; 
+            
+            let currentStamps = parseInt(localStorage.getItem('sleepAppStamps') || '0', 10);
+            currentStamps += 1;
+            localStorage.setItem('sleepAppStamps', currentStamps);
+            updateStampDisplay(); 
         }
     } else {
-        // 【変更点：目標が未設定の場合】新しいメッセージに変更
         feedbackMessage.textContent = "おはようございます！結果はどうですか？";
         feedbackMessage.style.color = "#333333";
     }
