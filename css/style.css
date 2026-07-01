@@ -83,6 +83,45 @@ button:disabled {
 }
 
 /* ==========================================
+   一言コメント入力欄のスタイル
+   ========================================== */
+.comment-section {
+    margin: 15px 0;
+    text-align: left;
+}
+.comment-section label {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text-color);
+}
+.comment-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+#comment-input {
+    flex: 1;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: var(--box-bg);
+    color: var(--text-color);
+}
+#comment-input:disabled {
+    background-color: #e9ecef;
+    border-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+#save-comment-btn {
+    padding: 10px 20px;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ==========================================
    着せ替えエリア
    ========================================== */
 .theme-section {
@@ -188,9 +227,19 @@ button:disabled {
     color: #666;
     line-height: 1.2;
     background: #f1f2f6;
-    padding: 2px;
+    padding: 4px;
     border-radius: 3px;
     margin-top: 1px;
+}
+
+.day-comment {
+    display: block;
+    margin-top: 4px;
+    border-top: 1px dashed #ccc;
+    padding-top: 2px;
+    color: #2c3e50;
+    font-weight: bold;
+    word-break: break-all;
 }
 
 /* ==========================================

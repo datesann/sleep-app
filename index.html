@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>睡眠管理アプリ - 着せ替え機能実装版</title>
+    <title>睡眠管理アプリ - 目標時間リセット版</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -31,6 +31,14 @@
         <p id="start-time-display">就寝時間: --:--:--</p>
         <p id="end-time-display">起床時間: --:--:--</p>
         <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
+        
+        <div class="comment-section">
+            <label for="comment-input">💬 今日の一言コメント (目標設定＋計測終了後に1回だけ書けます):</label>
+            <div class="comment-input-group">
+                <input type="text" id="comment-input" placeholder="計測を終了すると入力できます" disabled>
+                <button id="save-comment-btn" disabled>保存</button>
+            </div>
+        </div>
         
         <p id="feedback-message" class="feedback-msg"></p>
         <p id="error-message" class="error"></p>

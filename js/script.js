@@ -30,10 +30,15 @@ const modalMessage = document.getElementById('modal-message');
 const modalYesBtn = document.getElementById('modal-yes-btn');
 const modalNoBtn = document.getElementById('modal-no-btn');
 
+// 一言コメント要素取得
+const commentInput = document.getElementById('comment-input');
+const saveCommentBtn = document.getElementById('save-comment-btn');
+
 const MIN_DURATION_SEC = 3;   
 const MAX_DURATION_SEC = 300; 
 let displayDate = new Date();
-let pendingPurchase = null; // 購入保留中のアイテム情報を保持する変数
+let pendingPurchase = null; 
+let currentCommentDateKey = null; 
 
 // ==========================================
 // 着せ替え（テーマ）データ定義
@@ -138,7 +143,6 @@ function renderShopAndInventory() {
     }
 }
 
-// モーダルの「はい」ボタンを押したときの処理
 modalYesBtn.addEventListener('click', () => {
     if (pendingPurchase) {
         const currentStamps = getTotalStamps();
@@ -154,7 +158,6 @@ modalYesBtn.addEventListener('click', () => {
     pendingPurchase = null;
 });
 
-// モーダルの「いいえ」ボタンを押したときの処理
 modalNoBtn.addEventListener('click', () => {
     purchaseModal.classList.add('hidden');
     pendingPurchase = null;
@@ -167,12 +170,13 @@ function updateTargetDisplay() {
     const savedTarget = localStorage.getItem('targetWakeUpTime');
     if (savedTarget) {
         currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
-        targetInput.value = savedTarget;
     } else {
         currentTargetDisplay.textContent = "現在の目標: 未設定";
-        targetInput.value = "00:00";
     }
+    // 【修正】保存した値に関わらず、入力フォーム自体の表示は毎回「00:00」になるように固定
+    targetInput.value = "00:00"; 
 }
+
 setTargetBtn.addEventListener('click', () => {
     if (targetInput.value) {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
@@ -242,7 +246,13 @@ function renderCalendar() {
             }
             const infoDiv = document.createElement("div");
             infoDiv.className = "day-info";
-            infoDiv.innerHTML = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠: ${data.duration}`;
+            
+            let infoHtml = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠: ${data.duration}`;
+            if (data.comment) {
+                infoHtml += `<span class="day-comment">💬 ${data.comment}</span>`;
+            }
+            infoDiv.innerHTML = infoHtml;
+            
             dayCell.appendChild(infoDiv);
         }
         calendarGrid.appendChild(dayCell);
@@ -264,6 +274,11 @@ startBtn.addEventListener('click', () => {
     startTimeDisplay.textContent = `就寝時間: ${formatTime(now)}`;
     durationDisplay.textContent = `睡眠時間: 計測中...`;
     
+    commentInput.disabled = true;
+    saveCommentBtn.disabled = true;
+    commentInput.value = "";
+    commentInput.placeholder = "計測を終了すると入力できます";
+
     startBtn.disabled = true; endBtn.disabled = false;
     targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
 });
@@ -291,8 +306,8 @@ endBtn.addEventListener('click', () => {
         finishMeasurement(); return;
     }
 
-    let isStampEarned = false; 
     if (targetTimeStr) {
+        let isStampEarned = false; 
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
         targetDate.setHours(targetHour, targetMin, 0, 0);
@@ -306,46 +321,84 @@ endBtn.addEventListener('click', () => {
             feedbackMessage.textContent = "いい調子ですね！"; feedbackMessage.style.color = "#2ecc71"; 
             isStampEarned = true;
         }
-    } else {
-        feedbackMessage.textContent = "結果はどうですか？"; feedbackMessage.style.color = "var(--text-color)";
-    }
 
-    const dateKey = getLocalDateString(endTime); 
-    const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
-    let totalStamps = getTotalStamps();
-    let isBonusEarned = false;
+        const dateKey = getLocalDateString(endTime); 
+        const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
+        let totalStamps = getTotalStamps();
+        let isBonusEarned = false;
 
-    if (isStampEarned) {
-        totalStamps += 1; 
-        let consecutiveDays = 1; 
-        for (let i = 1; i <= 6; i++) {
-            const checkDate = new Date(endTime);
-            checkDate.setDate(checkDate.getDate() - i);
-            const checkKey = getLocalDateString(checkDate);
-            if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++;
-            else break; 
-        }
-        if (consecutiveDays === 7) {
+        if (isStampEarned) {
             totalStamps += 1; 
-            isBonusEarned = true;
-            feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！";
+            let consecutiveDays = 1; 
+            for (let i = 1; i <= 6; i++) {
+                const checkDate = new Date(endTime);
+                checkDate.setDate(checkDate.getDate() - i);
+                const checkKey = getLocalDateString(checkDate);
+                if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++;
+                else break; 
+            }
+            if (consecutiveDays === 7) {
+                totalStamps += 1; 
+                isBonusEarned = true;
+                feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！";
+            }
         }
+
+        history[dateKey] = { 
+            start: formatTime(startTime), 
+            end: formatTime(endTime), 
+            duration: durationText, 
+            hasStamp: isStampEarned, 
+            isBonus: isBonusEarned,
+            comment: "" 
+        };
+        
+        localStorage.setItem('sleepAppHistory', JSON.stringify(history));
+        setTotalStamps(totalStamps);
+        
+        renderCalendar(); 
+        renderShopAndInventory(); 
+
+        currentCommentDateKey = dateKey; 
+        commentInput.disabled = false;
+        saveCommentBtn.disabled = false;
+        commentInput.placeholder = "今日の一言を入力してください（保存は1回のみ）";
+
+    } else {
+        feedbackMessage.textContent = "結果の測定完了！（目標未設定のためカレンダーには記録されません）"; 
+        feedbackMessage.style.color = "var(--text-color)";
+
+        commentInput.disabled = true;
+        saveCommentBtn.disabled = true;
+        commentInput.placeholder = "目標時間が設定されていなかったため入力できません";
     }
 
-    history[dateKey] = { start: formatTime(startTime), end: formatTime(endTime), duration: durationText, hasStamp: isStampEarned, isBonus: isBonusEarned };
-    
-    localStorage.setItem('sleepAppHistory', JSON.stringify(history));
-    setTotalStamps(totalStamps);
-    
-    renderCalendar(); 
-    renderShopAndInventory(); 
     finishMeasurement();
+});
+
+saveCommentBtn.addEventListener('click', () => {
+    if (!currentCommentDateKey) return;
+
+    const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
+    
+    if (history[currentCommentDateKey]) {
+        history[currentCommentDateKey].comment = commentInput.value.trim();
+        localStorage.setItem('sleepAppHistory', JSON.stringify(history));
+        renderCalendar(); 
+    }
+
+    commentInput.disabled = true;
+    saveCommentBtn.disabled = true;
+    commentInput.placeholder = "コメントは保存されました（編集不可）";
+    currentCommentDateKey = null; 
 });
 
 function finishMeasurement() {
     localStorage.removeItem('sleepStartTime');
     startBtn.disabled = false; endBtn.disabled = true;
     targetInput.disabled = false; setTargetBtn.disabled = false; clearTargetBtn.disabled = false;
+    // 【修正】計測終了時、再有効化された入力フォームの表示を「00:00」にリセット
+    targetInput.value = "00:00"; 
 }
 
 // ==========================================
@@ -361,6 +414,10 @@ const savedStartTime = localStorage.getItem('sleepStartTime');
 if (savedStartTime) {
     startTimeDisplay.textContent = `就寝時間: ${formatTime(new Date(parseInt(savedStartTime, 10)))}`;
     durationDisplay.textContent = `睡眠時間: 計測中...`;
+    
+    commentInput.disabled = true;
+    saveCommentBtn.disabled = true;
+
     startBtn.disabled = true; endBtn.disabled = false;
     targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
 }
