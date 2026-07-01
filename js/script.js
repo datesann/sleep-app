@@ -75,25 +75,21 @@ clearTargetBtn.addEventListener('click', () => {
 });
 
 // ==========================================
-// カレンダーの描画処理（前後1ヶ月制限付き）
+// カレンダーの描画処理
 // ==========================================
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
     
-    const realToday = new Date(); // 本当の今日の日付
+    const realToday = new Date(); 
     const viewYear = displayDate.getFullYear();
     const viewMonth = displayDate.getMonth(); 
     
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
     
-    // 【前後1ヶ月の移動制限ロジック】
-    // 本当の今月と、表示している月の差分（月数）を計算
     const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
-    
-    prevMonthBtn.disabled = (monthDiff <= -1); // 1ヶ月前ならこれ以上戻れない
-    nextMonthBtn.disabled = (monthDiff >= 1);  // 1ヶ月先ならこれ以上進めれない
+    prevMonthBtn.disabled = (monthDiff <= -1); 
+    nextMonthBtn.disabled = (monthDiff >= 1);  
 
-    // 曜日のヘッダー作成
     const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
     weekdays.forEach(day => {
         const headerCell = document.createElement("div");
@@ -115,7 +111,6 @@ function renderCalendar() {
         const dayCell = document.createElement("div");
         dayCell.className = "calendar-day";
         
-        // 本当の今日かつ表示月が今月の場合のみハイライト
         if (day === realToday.getDate() && viewMonth === realToday.getMonth() && viewYear === realToday.getFullYear()) {
             dayCell.classList.add("today");
         }
@@ -129,12 +124,22 @@ function renderCalendar() {
         
         if (history[dateKey]) {
             const data = history[dateKey];
+            
+            // 【修正】スタンプ表示エリアの処理
             if (data.hasStamp) {
                 const stampDiv = document.createElement("div");
                 stampDiv.className = "day-stamp";
-                stampDiv.textContent = data.isBonus ? "💮🔥" : "💮"; // ボーナス日はマークを豪華に
+                
+                // 通常は「💮」、ボーナス日なら「💮🎁✨」を表示
+                if (data.isBonus) {
+                    stampDiv.textContent = "💮🎁✨"; 
+                } else {
+                    stampDiv.textContent = "💮";
+                }
+                
                 dayCell.appendChild(stampDiv);
             }
+            
             const infoDiv = document.createElement("div");
             infoDiv.className = "day-info";
             infoDiv.innerHTML = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠: ${data.duration}`;
@@ -144,7 +149,6 @@ function renderCalendar() {
     }
 }
 
-// 月移動ボタンのイベントリスナー
 prevMonthBtn.addEventListener('click', () => {
     displayDate.setMonth(displayDate.getMonth() - 1);
     renderCalendar();
@@ -236,7 +240,6 @@ endBtn.addEventListener('click', () => {
 
     let isStampEarned = false; 
 
-    // 起床時刻のフィードバックとスタンプ判定
     if (targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
@@ -260,16 +263,15 @@ endBtn.addEventListener('click', () => {
         feedbackMessage.style.color = "#333333";
     }
 
-    // データの読み込み
     const dateKey = getLocalDateString(endTime); 
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
     let totalStamps = parseInt(localStorage.getItem('sleepAppStamps') || '0', 10);
     let isBonusEarned = false;
 
     if (isStampEarned) {
-        totalStamps += 1; // 通常のスタンプを+1
+        totalStamps += 1; 
 
-        // 【追加機能】過去6日間連続でスタンプがあるかチェック（今日を含めて7日連続か）
+        // 過去6日間連続でスタンプがあるかチェック
         let consecutiveDays = 1; 
         for (let i = 1; i <= 6; i++) {
             const checkDate = new Date(endTime);
@@ -279,26 +281,25 @@ endBtn.addEventListener('click', () => {
             if (history[checkKey] && history[checkKey].hasStamp) {
                 consecutiveDays++;
             } else {
-                break; // 途切れたら終了
+                break; 
             }
         }
 
         // 7日連続を達成した場合
         if (consecutiveDays === 7) {
-            totalStamps += 1; // ボーナススタンプをさらに+1
+            totalStamps += 1; // ボーナススタンプを+1
             isBonusEarned = true;
             feedbackMessage.textContent += " 🎉 7日連続達成ボーナス！追加スタンプ獲得！";
-            feedbackMessage.style.color = "#e74c3c"; // メッセージを赤色にして強調
+            feedbackMessage.style.color = "#e74c3c"; 
         }
     }
 
-    // データの保存
     history[dateKey] = {
         start: formatTime(startTime),
         end: formatTime(endTime),
         duration: durationText,
         hasStamp: isStampEarned,
-        isBonus: isBonusEarned // ボーナスフラグを保存
+        isBonus: isBonusEarned 
     };
     
     localStorage.setItem('sleepAppHistory', JSON.stringify(history));
