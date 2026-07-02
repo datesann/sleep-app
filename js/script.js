@@ -30,6 +30,19 @@ const modalMessage = document.getElementById('modal-message');
 const modalYesBtn = document.getElementById('modal-yes-btn');
 const modalNoBtn = document.getElementById('modal-no-btn');
 
+// 右上ナビゲーション＆設定・ヘルプモーダル要素取得
+const navSettingsBtn = document.getElementById('nav-settings-btn');
+const navHelpBtn = document.getElementById('nav-help-btn');
+const settingsMenuModal = document.getElementById('settings-menu-modal');
+const wakeupSettingModal = document.getElementById('wakeup-setting-modal');
+const bgSettingModal = document.getElementById('bg-setting-modal');
+const helpModal = document.getElementById('help-modal');
+
+const goToWakeupBtn = document.getElementById('go-to-wakeup-btn');
+const goToBgBtn = document.getElementById('go-to-bg-btn');
+const closeModalBtns = document.querySelectorAll('.close-modal-btn');
+const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn'); // 戻るボタン
+
 // 一言コメント要素取得
 const commentInput = document.getElementById('comment-input');
 const saveCommentBtn = document.getElementById('save-comment-btn');
@@ -53,6 +66,44 @@ const THEMES = {
     "tricolor_3": { name: "3色: トリコロール", cost: 30, colors: { bg: "#fdfefe", box: "#eaf2f8", primary: "#e74c3c", secondary: "#2980b9", text: "#17202a", border: "#e74c3c", header: "#2c3e50" } },
     "forest_3": { name: "3色: フォレスト", cost: 30, colors: { bg: "#e8f8f5", box: "#fcf3cf", primary: "#1abc9c", secondary: "#117a65", text: "#145a32", border: "#f1c40f", header: "#117a65" } }
 };
+
+// ==========================================
+// ナビゲーション・モーダル開閉処理
+// ==========================================
+navSettingsBtn.addEventListener('click', () => {
+    settingsMenuModal.classList.remove('hidden');
+});
+
+navHelpBtn.addEventListener('click', () => {
+    helpModal.classList.remove('hidden');
+});
+
+goToWakeupBtn.addEventListener('click', () => {
+    settingsMenuModal.classList.add('hidden');
+    wakeupSettingModal.classList.remove('hidden');
+});
+
+goToBgBtn.addEventListener('click', () => {
+    settingsMenuModal.classList.add('hidden');
+    bgSettingModal.classList.remove('hidden');
+});
+
+// 「閉じる」ボタン（完全に閉じる）
+closeModalBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const targetId = e.target.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('hidden');
+    });
+});
+
+// 「戻る」ボタン（1つ前の設定メニューに戻る）
+backToMenuBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const currentId = e.target.getAttribute('data-current');
+        document.getElementById(currentId).classList.add('hidden');
+        settingsMenuModal.classList.remove('hidden');
+    });
+});
 
 // ==========================================
 // ユーティリティ関数
@@ -181,6 +232,10 @@ setTargetBtn.addEventListener('click', () => {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
         updateTargetDisplay();
         errorMessage.textContent = "";
+        
+        // 保存後に設定メニューへ戻る
+        wakeupSettingModal.classList.add('hidden');
+        settingsMenuModal.classList.remove('hidden');
     } else {
         errorMessage.textContent = "エラー: 起床時間を入力してください。";
     }
@@ -279,7 +334,7 @@ startBtn.addEventListener('click', () => {
     commentInput.placeholder = "計測を終了すると入力できます";
 
     startBtn.disabled = true; endBtn.disabled = false;
-    targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
+    navSettingsBtn.disabled = true; 
 });
 
 endBtn.addEventListener('click', () => {
@@ -395,7 +450,7 @@ saveCommentBtn.addEventListener('click', () => {
 function finishMeasurement() {
     localStorage.removeItem('sleepStartTime');
     startBtn.disabled = false; endBtn.disabled = true;
-    targetInput.disabled = false; setTargetBtn.disabled = false; clearTargetBtn.disabled = false;
+    navSettingsBtn.disabled = false;
     targetInput.value = "00:00"; 
 }
 
@@ -417,7 +472,7 @@ if (savedStartTime) {
     saveCommentBtn.disabled = true;
 
     startBtn.disabled = true; endBtn.disabled = false;
-    targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
+    navSettingsBtn.disabled = true; 
 }
 
 // ==========================================

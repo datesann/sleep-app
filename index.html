@@ -8,20 +8,14 @@
 </head>
 <body>
 
+    <div class="top-right-nav">
+        <div class="nav-stamp">💮 <span id="stamp-count">0</span></div>
+        <button id="nav-settings-btn" class="icon-btn">⚙️ 設定</button>
+        <button id="nav-help-btn" class="icon-btn">❓ ヘルプ</button>
+    </div>
+
     <div id="tab-sleep" class="tab-content active">
         <h1>睡眠管理アプリ</h1>
-
-        <div class="stamp-area">
-            <h3>現在のスタンプ数: <span id="stamp-count">0</span> 個 💮</h3>
-        </div>
-
-        <div class="target-setting">
-            <h3>起床目標時間の設定</h3>
-            <input type="time" id="target-time-input" value="00:00">
-            <button id="set-target-btn">目標を保存</button>
-            <button id="clear-target-btn" class="danger-btn">目標を削除</button>
-            <p id="current-target-display">現在の目標: 未設定</p>
-        </div>
 
         <div class="button-group">
             <button id="start-btn">計測を開始する</button>
@@ -64,12 +58,6 @@
                 <div id="shop-items" class="theme-grid">
                 </div>
             </div>
-
-            <div class="theme-inventory">
-                <h2>👗 所持している着せ替え</h2>
-                <div id="inventory-items" class="theme-grid">
-                </div>
-            </div>
         </div>
     </div>
 
@@ -86,6 +74,49 @@
                 <button id="modal-yes-btn">はい</button>
                 <button id="modal-no-btn" class="danger-btn">いいえ</button>
             </div>
+        </div>
+    </div>
+
+    <div id="settings-menu-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>⚙️ 設定メニュー</h2>
+            <div class="settings-options">
+                <button id="go-to-wakeup-btn" class="menu-btn">⏰ 起床時間の設定</button>
+                <button id="go-to-bg-btn" class="menu-btn">🎨 背景(着せ替え)の設定</button>
+            </div>
+            <button class="close-modal-btn danger-btn" data-target="settings-menu-modal">閉じる</button>
+        </div>
+    </div>
+
+    <div id="wakeup-setting-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>⏰ 起床時間の設定</h2>
+            <div class="modal-inner-content">
+                <input type="time" id="target-time-input" value="00:00">
+                <br>
+                <button id="set-target-btn">目標を保存</button>
+                <button id="clear-target-btn" class="danger-btn">目標を削除</button>
+                <p id="current-target-display">現在の目標: 未設定</p>
+            </div>
+            <button class="back-to-menu-btn danger-btn" data-current="wakeup-setting-modal">戻る</button>
+        </div>
+    </div>
+
+    <div id="bg-setting-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>👗 所持している着せ替え</h2>
+            <div id="inventory-items" class="theme-grid modal-inner-content">
+            </div>
+            <button class="back-to-menu-btn danger-btn" data-current="bg-setting-modal">戻る</button>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>❓ ヘルプ</h2>
+            <div id="help-content" class="modal-inner-content text-left">
+            </div>
+            <button class="close-modal-btn danger-btn" data-target="help-modal">閉じる</button>
         </div>
     </div>
 

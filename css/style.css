@@ -15,22 +15,61 @@ body {
     font-family: sans-serif;
     text-align: center;
     margin: 0;
-    padding-top: 30px;
-    padding-bottom: 70px; /* 下のタブと被らないように余白を確保 */
+    padding-top: 60px;
+    padding-bottom: 70px; 
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
 }
 
 /* ==========================================
+   右上ナビゲーション (スタンプ・設定・ヘルプ)
+   ========================================== */
+.top-right-nav {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center; /* 縦位置を中央揃え */
+    z-index: 900; 
+}
+
+.nav-stamp {
+    background: #fff9c4;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 2px solid #f1c40f;
+    color: #d35400;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.icon-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin: 0;
+    border-radius: 20px;
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.icon-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* ==========================================
    タブ表示切り替えの仕組み
    ========================================== */
 .tab-content {
-    display: none; /* デフォルトは非表示 */
+    display: none; 
     animation: fadeIn 0.3s ease-in-out;
 }
 .tab-content.active {
-    display: block; /* .activeが付いた要素だけ表示 */
+    display: block; 
 }
 
 @keyframes fadeIn {
@@ -39,28 +78,28 @@ body {
 }
 
 /* ==========================================
-   ボトムナビゲーション (隙間なく3分割)
+   ボトムナビゲーション
    ========================================== */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    display: flex; /* Flexboxで等分配置 */
+    display: flex; 
     z-index: 1000;
 }
 
 .nav-btn {
-    flex: 1; /* 3つのボタンを均等な幅にする */
-    margin: 0; /* デフォルトのmargin(5px)を無効化 */
-    border-radius: 0; /* デフォルトの角丸を無効化 */
-    padding: 18px 0; /* 押しやすいように高さを確保 */
+    flex: 1; 
+    margin: 0; 
+    border-radius: 0; 
+    padding: 18px 0; 
     background-color: var(--secondary-color);
-    border-right: 1px solid rgba(255, 255, 255, 0.2); /* ボタン間の区切り線 */
+    border-right: 1px solid rgba(255, 255, 255, 0.2); 
 }
 
 .nav-btn:last-child {
-    border-right: none; /* 一番右のボタンには区切り線を入れない */
+    border-right: none; 
 }
 
 .nav-btn.active {
@@ -70,9 +109,9 @@ body {
 }
 
 /* ==========================================
-   以下、既存のスタイル
+   既存のスタイル (レイアウト・ボタンなど)
    ========================================== */
-.target-setting, .result-area, #calendar-wrapper {
+.result-area, #calendar-wrapper {
     background: var(--box-bg);
     padding: 20px;
     border-radius: 10px;
@@ -121,19 +160,6 @@ button:disabled {
     font-weight: bold;
 }
 
-.stamp-area {
-    background: #fff9c4;
-    padding: 5px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    margin-bottom: 20px;
-    border: 2px solid #f1c40f;
-    color: #d35400;
-}
-.stamp-area h3 {
-    margin: 10px 0;
-}
-
 .comment-section {
     margin: 15px 0;
     text-align: left;
@@ -178,7 +204,7 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-.theme-shop, .theme-inventory {
+.theme-shop {
     background: var(--box-bg);
     padding: 15px;
     border-radius: 10px;
@@ -285,6 +311,9 @@ button:disabled {
     word-break: break-all;
 }
 
+/* ==========================================
+   モーダル関連のスタイル
+   ========================================== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -295,7 +324,7 @@ button:disabled {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000;
     opacity: 1;
     transition: opacity 0.2s;
 }
@@ -314,6 +343,8 @@ button:disabled {
     text-align: center;
     max-width: 400px;
     width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
     transform: translateY(0);
     transition: transform 0.2s;
 }
@@ -322,15 +353,36 @@ button:disabled {
     transform: translateY(-20px);
 }
 
-.modal-content p {
-    font-size: 1.2em;
-    margin-bottom: 25px;
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
     color: var(--text-color);
-    font-weight: bold;
 }
 
-.modal-buttons {
+.modal-inner-content {
+    margin-bottom: 25px;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.settings-options {
     display: flex;
-    justify-content: center;
-    gap: 30px;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.menu-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    background-color: var(--secondary-color);
+}
+.menu-btn:hover {
+    background-color: var(--primary-color);
+}
+
+.close-modal-btn, .back-to-menu-btn {
+    width: 100%;
 }
