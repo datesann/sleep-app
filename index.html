@@ -15,28 +15,43 @@
     </div>
 
     <div id="tab-sleep" class="tab-content active">
-        <h1>睡眠管理アプリ</h1>
-
-        <div class="button-group">
-            <button id="start-btn">計測を開始する</button>
-            <button id="end-btn" disabled>計測を終了する</button>
+        <div id="sleep-state-before" class="sleep-state-panel">
+            <p id="main-target-display" class="target-display-large">現在の目標時間: 未設定</p>
+            <button id="start-btn" class="large-btn">計測を開始する</button>
         </div>
 
-        <div class="result-area">
-            <p id="start-time-display">就寝時間: --:--:--</p>
-            <p id="end-time-display">起床時間: --:--:--</p>
-            <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
+        <div id="sleep-state-during" class="sleep-state-panel hidden">
+            <div class="button-group-row">
+                <button id="end-btn" class="primary-btn">計測終了</button>
+                <button id="abort-btn" class="danger-btn">計測中断</button>
+            </div>
+        </div>
+
+        <div id="sleep-state-after" class="sleep-state-panel hidden">
+            <p id="feedback-message" class="feedback-msg"></p>
             
-            <div class="comment-section">
-                <label for="comment-input">💬 今日の一言コメント (目標設定＋計測終了後に1回だけ書けます):</label>
-                <div class="comment-input-group">
-                    <input type="text" id="comment-input" placeholder="計測を終了すると入力できます" disabled>
-                    <button id="save-comment-btn" disabled>保存</button>
+            <div class="time-row">
+                <div class="time-box">
+                    <span class="time-label">就寝時間</span>
+                    <p id="start-time-display">--:--:--</p>
+                </div>
+                <div class="time-box">
+                    <span class="time-label">起床時間</span>
+                    <p id="end-time-display">--:--:--</p>
                 </div>
             </div>
+
+            <h2 id="duration-display" class="duration-highlight">睡眠時間: --時間 --分 --秒</h2>
             
-            <p id="feedback-message" class="feedback-msg"></p>
+            <div id="comment-section" class="comment-section">
+                <label for="comment-input">💬 今日の一言コメント:</label>
+                <div class="comment-input-group">
+                    <input type="text" id="comment-input" placeholder="今日の一言を入力してください">
+                    </div>
+            </div>
+            
             <p id="error-message" class="error"></p>
+            <button id="complete-btn" class="secondary-btn wide-btn">完了（記録を保存して戻る）</button>
         </div>
     </div>
 
@@ -74,6 +89,24 @@
                 <button id="modal-yes-btn">はい</button>
                 <button id="modal-no-btn" class="danger-btn">いいえ</button>
             </div>
+        </div>
+    </div>
+
+    <div id="abort-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p>本当に中断しますか？</p>
+            <div class="modal-buttons">
+                <button id="abort-yes-btn">はい</button>
+                <button id="abort-no-btn" class="danger-btn">いいえ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="measurement-error-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 style="color: #e74c3c; margin-bottom: 10px;">⚠️ 計測エラー</h2>
+            <p id="measurement-error-message" style="margin-bottom: 20px; font-weight: bold;"></p>
+            <button id="measurement-error-close-btn" class="wide-btn danger-btn">閉じる（計測を強制終了）</button>
         </div>
     </div>
 
