@@ -2,74 +2,82 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>睡眠管理アプリ - 目標時間リセット版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠管理アプリ - タブレイアウト版</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>睡眠管理アプリ</h1>
 
-    <div class="stamp-area">
-        <h3>現在のスタンプ数: <span id="stamp-count">0</span> 個 💮</h3>
+    <div id="tab-sleep" class="tab-content active">
+        <h1>睡眠管理アプリ</h1>
+
+        <div class="stamp-area">
+            <h3>現在のスタンプ数: <span id="stamp-count">0</span> 個 💮</h3>
+        </div>
+
+        <div class="target-setting">
+            <h3>起床目標時間の設定</h3>
+            <input type="time" id="target-time-input" value="00:00">
+            <button id="set-target-btn">目標を保存</button>
+            <button id="clear-target-btn" class="danger-btn">目標を削除</button>
+            <p id="current-target-display">現在の目標: 未設定</p>
+        </div>
+
+        <div class="button-group">
+            <button id="start-btn">計測を開始する</button>
+            <button id="end-btn" disabled>計測を終了する</button>
+        </div>
+
+        <div class="result-area">
+            <p id="start-time-display">就寝時間: --:--:--</p>
+            <p id="end-time-display">起床時間: --:--:--</p>
+            <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
+            
+            <div class="comment-section">
+                <label for="comment-input">💬 今日の一言コメント (目標設定＋計測終了後に1回だけ書けます):</label>
+                <div class="comment-input-group">
+                    <input type="text" id="comment-input" placeholder="計測を終了すると入力できます" disabled>
+                    <button id="save-comment-btn" disabled>保存</button>
+                </div>
+            </div>
+            
+            <p id="feedback-message" class="feedback-msg"></p>
+            <p id="error-message" class="error"></p>
+        </div>
     </div>
 
-    <div class="target-setting">
-        <h3>起床目標時間の設定</h3>
-        <input type="time" id="target-time-input" value="00:00">
-        <button id="set-target-btn">目標を保存</button>
-        <button id="clear-target-btn" class="danger-btn">目標を削除</button>
-        <p id="current-target-display">現在の目標: 未設定</p>
+    <div id="tab-calendar" class="tab-content">
+        <div id="calendar-wrapper">
+            <div class="calendar-nav">
+                <button id="prev-month-btn">◀ 前月</button>
+                <h2 id="calendar-title">----年 --月</h2>
+                <button id="next-month-btn">翌月 ▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
     </div>
 
-    <hr>
+    <div id="tab-shop" class="tab-content">
+        <div class="theme-section">
+            <div class="theme-shop">
+                <h2>🛒 着せ替えショップ</h2>
+                <div id="shop-items" class="theme-grid">
+                </div>
+            </div>
 
-    <div class="button-group">
-        <button id="start-btn">計測を開始する</button>
-        <button id="end-btn" disabled>計測を終了する</button>
-    </div>
-
-    <div class="result-area">
-        <p id="start-time-display">就寝時間: --:--:--</p>
-        <p id="end-time-display">起床時間: --:--:--</p>
-        <h2 id="duration-display">睡眠時間: --時間 --分 --秒</h2>
-        
-        <div class="comment-section">
-            <label for="comment-input">💬 今日の一言コメント (目標設定＋計測終了後に1回だけ書けます):</label>
-            <div class="comment-input-group">
-                <input type="text" id="comment-input" placeholder="計測を終了すると入力できます" disabled>
-                <button id="save-comment-btn" disabled>保存</button>
+            <div class="theme-inventory">
+                <h2>👗 所持している着せ替え</h2>
+                <div id="inventory-items" class="theme-grid">
+                </div>
             </div>
         </div>
-        
-        <p id="feedback-message" class="feedback-msg"></p>
-        <p id="error-message" class="error"></p>
     </div>
 
-    <hr>
-
-    <div class="theme-section">
-        <div class="theme-shop">
-            <h2>🛒 着せ替えショップ</h2>
-            <div id="shop-items" class="theme-grid">
-                </div>
-        </div>
-
-        <div class="theme-inventory">
-            <h2>👗 所持している着せ替え</h2>
-            <div id="inventory-items" class="theme-grid">
-                </div>
-        </div>
-    </div>
-
-    <hr>
-
-    <div id="calendar-wrapper">
-        <div class="calendar-nav">
-            <button id="prev-month-btn">◀ 前月</button>
-            <h2 id="calendar-title">----年 --月</h2>
-            <button id="next-month-btn">翌月 ▶</button>
-        </div>
-        <div class="calendar-grid" id="calendar-grid"></div>
-    </div>
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-target="tab-sleep">睡眠管理</button>
+        <button class="nav-btn" data-target="tab-calendar">カレンダー</button>
+        <button class="nav-btn" data-target="tab-shop">ショップ</button>
+    </nav>
 
     <div id="purchase-modal" class="modal-overlay hidden">
         <div class="modal-content">

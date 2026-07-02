@@ -14,12 +14,64 @@
 body {
     font-family: sans-serif;
     text-align: center;
-    margin-top: 30px;
+    margin: 0;
+    padding-top: 30px;
+    padding-bottom: 70px; /* 下のタブと被らないように余白を確保 */
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
 }
 
+/* ==========================================
+   タブ表示切り替えの仕組み
+   ========================================== */
+.tab-content {
+    display: none; /* デフォルトは非表示 */
+    animation: fadeIn 0.3s ease-in-out;
+}
+.tab-content.active {
+    display: block; /* .activeが付いた要素だけ表示 */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================
+   ボトムナビゲーション (隙間なく3分割)
+   ========================================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex; /* Flexboxで等分配置 */
+    z-index: 1000;
+}
+
+.nav-btn {
+    flex: 1; /* 3つのボタンを均等な幅にする */
+    margin: 0; /* デフォルトのmargin(5px)を無効化 */
+    border-radius: 0; /* デフォルトの角丸を無効化 */
+    padding: 18px 0; /* 押しやすいように高さを確保 */
+    background-color: var(--secondary-color);
+    border-right: 1px solid rgba(255, 255, 255, 0.2); /* ボタン間の区切り線 */
+}
+
+.nav-btn:last-child {
+    border-right: none; /* 一番右のボタンには区切り線を入れない */
+}
+
+.nav-btn.active {
+    background-color: var(--primary-color);
+    font-weight: bold;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* ==========================================
+   以下、既存のスタイル
+   ========================================== */
 .target-setting, .result-area, #calendar-wrapper {
     background: var(--box-bg);
     padding: 20px;
@@ -82,9 +134,6 @@ button:disabled {
     margin: 10px 0;
 }
 
-/* ==========================================
-   一言コメント入力欄のスタイル
-   ========================================== */
 .comment-section {
     margin: 15px 0;
     text-align: left;
@@ -121,9 +170,6 @@ button:disabled {
     font-size: 14px;
 }
 
-/* ==========================================
-   着せ替えエリア
-   ========================================== */
 .theme-section {
     display: flex;
     flex-wrap: wrap;
@@ -165,9 +211,6 @@ button:disabled {
     color: #555;
 }
 
-/* ==========================================
-   カレンダー
-   ========================================== */
 .calendar-nav {
     display: flex;
     justify-content: center;
@@ -242,9 +285,6 @@ button:disabled {
     word-break: break-all;
 }
 
-/* ==========================================
-   カスタムモーダル（確認画面）
-   ========================================== */
 .modal-overlay {
     position: fixed;
     top: 0;

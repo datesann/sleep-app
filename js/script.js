@@ -173,7 +173,6 @@ function updateTargetDisplay() {
     } else {
         currentTargetDisplay.textContent = "現在の目標: 未設定";
     }
-    // 【修正】保存した値に関わらず、入力フォーム自体の表示は毎回「00:00」になるように固定
     targetInput.value = "00:00"; 
 }
 
@@ -397,7 +396,6 @@ function finishMeasurement() {
     localStorage.removeItem('sleepStartTime');
     startBtn.disabled = false; endBtn.disabled = true;
     targetInput.disabled = false; setTargetBtn.disabled = false; clearTargetBtn.disabled = false;
-    // 【修正】計測終了時、再有効化された入力フォームの表示を「00:00」にリセット
     targetInput.value = "00:00"; 
 }
 
@@ -421,3 +419,21 @@ if (savedStartTime) {
     startBtn.disabled = true; endBtn.disabled = false;
     targetInput.disabled = true; setTargetBtn.disabled = true; clearTargetBtn.disabled = true;
 }
+
+// ==========================================
+// タブ切り替え処理
+// ==========================================
+const navButtons = document.querySelectorAll('.nav-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        navButtons.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});
