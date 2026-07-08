@@ -501,3 +501,78 @@ button:disabled {
 .modal-buttons button {
     flex: 1;
 }
+
+/* ==========================================
+   平均データエリア（枠なし・横並びデザイン）
+   ========================================== */
+
+/* 平均データのタイトル */
+.average-title {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* 枠（背景・影）をなくし、「横並び」の設定のみ残す */
+#average-stats-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto 20px auto; 
+    padding: 0 10px;
+    
+    /* 横並びの指定 */
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+/* 各期間のブロック（7日間と30日間） */
+.stats-block {
+    flex: 1; /* 左右のブロックで幅を1:1で均等に分ける */
+    text-align: center;
+}
+
+.stats-block h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.05rem;
+    color: var(--primary-color);
+}
+
+.avg-content p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+/* 数値のハイライト */
+.highlight-val {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* 中央の区切り線（デザインのアクセント） */
+.stats-divider {
+    width: 1px;
+    background-color: var(--border-color); /* 色が薄すぎる場合は #ccc などに変更してください */
+    height: 90px;
+    margin: 0 10px;
+    opacity: 0.5;
+}
+
+/* 数値のハイライト */
+.highlight-val {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* 中央の区切り線（デザインのアクセント） */
+.stats-divider {
+    width: 1px;
+    background-color: var(--border-color);
+    height: 90px;
+    margin: 0 10px;
+    opacity: 0.5;
+}
