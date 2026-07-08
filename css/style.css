@@ -246,14 +246,14 @@ button:disabled {
 .secondary-btn { background-color: var(--secondary-color); }
 
 .danger-btn {
-    background-color: #e74c3c;
+    background-color: var(--danger-color); /* 🌟 ここを変更！ */
 }
 .danger-btn:disabled {
-    background-color: #bdc3c7;
+    background-color: #bdc3c7; /* 無効化時のグレーはそのまま */
 }
 
 .error {
-    color: #e74c3c;
+    color: var(--danger-color); /* 🌟 エラー文字の色も連動させると綺麗です！ */
     font-weight: bold;
     margin-top: 10px;
 }

@@ -39,6 +39,11 @@ const modalMessage = document.getElementById('modal-message');
 const modalYesBtn = document.getElementById('modal-yes-btn');
 const modalNoBtn = document.getElementById('modal-no-btn');
 
+// 🌟 追加: 適用確認モーダルの要素取得
+const applyPromptModal = document.getElementById('apply-prompt-modal');
+const applyYesBtn = document.getElementById('apply-yes-btn');
+const applyNoBtn = document.getElementById('apply-no-btn');
+
 const abortModal = document.getElementById('abort-modal'); 
 const abortYesBtn = document.getElementById('abort-yes-btn');
 const abortNoBtn = document.getElementById('abort-no-btn');
@@ -63,7 +68,7 @@ const commentSection = document.getElementById('comment-section');
 const commentInput = document.getElementById('comment-input');
 
 const MIN_DURATION_SEC = 3;   
-const MAX_DURATION_SEC = 300000; // テスト用に上限を緩めています
+const MAX_DURATION_SEC = 300000; 
 let displayDate = new Date();
 let pendingPurchase = null; 
 let currentCommentDateKey = null; 
@@ -128,14 +133,34 @@ backToMenuBtns.forEach(btn => {
 // 4. 着せ替えデータ定義
 // ==========================================
 const THEMES = {
-    "default": { name: "デフォルト (青/白)", cost: 0, colors: { bg: "#f0f4f8", box: "#ffffff", primary: "#3498db", secondary: "#2c3e50", text: "#333333", border: "#3498db", header: "#34495e" } },
-    "red_1": { name: "単色: レッド", cost: 10, colors: { bg: "#fdebd0", box: "#fff5e6", primary: "#e74c3c", secondary: "#c0392b", text: "#4a2311", border: "#e74c3c", header: "#c0392b" } },
-    "blue_1": { name: "単色: ダークブルー", cost: 10, colors: { bg: "#eaf2f8", box: "#f4f6f7", primary: "#2980b9", secondary: "#154360", text: "#1b4f72", border: "#2980b9", header: "#154360" } },
-    "yellow_1": { name: "単色: イエロー", cost: 10, colors: { bg: "#fcf3cf", box: "#fef9e7", primary: "#f1c40f", secondary: "#b7950b", text: "#7d6608", border: "#f1c40f", header: "#b7950b" } },
-    "red_green_2": { name: "2色: レッド＆グリーン", cost: 20, colors: { bg: "#fdedec", box: "#e9f7ef", primary: "#e74c3c", secondary: "#27ae60", text: "#2c3e50", border: "#27ae60", header: "#e74c3c" } },
-    "purple_blue_2": { name: "2色: パープル＆ブルー", cost: 20, colors: { bg: "#f4ecf7", box: "#ebf5fb", primary: "#9b59b6", secondary: "#2980b9", text: "#34495e", border: "#8e44ad", header: "#2980b9" } },
-    "tricolor_3": { name: "3色: トリコロール", cost: 30, colors: { bg: "#fdfefe", box: "#eaf2f8", primary: "#e74c3c", secondary: "#2980b9", text: "#17202a", border: "#e74c3c", header: "#2c3e50" } },
-    "forest_3": { name: "3色: フォレスト", cost: 30, colors: { bg: "#e8f8f5", box: "#fcf3cf", primary: "#1abc9c", secondary: "#117a65", text: "#145a32", border: "#f1c40f", header: "#117a65" } }
+    // --- 【初期所有】 ---
+    // ダークモードを豪華から「質素（青アクセント）」に変更
+    "light": { name: "ライト (初期設定)", cost: 0, colors: { bg: "#f8f9fa", box: "#ffffff", primary: "#3498db", secondary: "#6c757d", text: "#333333", border: "#dee2e6", header: "#e9ecef", danger: "#e74c3c" } },
+    "dark": { name: "ダーク (質素な青)", cost: 0, colors: { bg: "#1e1e1e", box: "#2d2d2d", primary: "#3498db", secondary: "#5dade2", text: "#e0e0e0", border: "#444444", header: "#252525", danger: "#c0392b" } },
+
+    // --- 【単色】 (7スタンプ) ---
+    "single_red": { name: "単色：レッド", cost: 7, colors: { bg: "#fff5f5", box: "#ffffff", primary: "#e74c3c", secondary: "#c0392b", text: "#333333", border: "#fadbd8", header: "#f2d7d5", danger: "#2c3e50" } },
+    "single_blue": { name: "単色：ブルー", cost: 7, colors: { bg: "#f4f6f7", box: "#ffffff", primary: "#3498db", secondary: "#2980b9", text: "#333333", border: "#d6eaf8", header: "#ebf5fb", danger: "#e74c3c" } },
+    "single_yellow": { name: "単色：イエロー", cost: 7, colors: { bg: "#fcf9f2", box: "#ffffff", primary: "#f1c40f", secondary: "#f39c12", text: "#333333", border: "#f9e79f", header: "#fcf3cf", danger: "#e74c3c" } },
+    "single_green": { name: "単色：グリーン", cost: 7, colors: { bg: "#f4fcf6", box: "#ffffff", primary: "#2ecc71", secondary: "#27ae60", text: "#333333", border: "#d5f5e3", header: "#eaeded", danger: "#e74c3c" } },
+    "single_purple": { name: "単色：パープル", cost: 7, colors: { bg: "#f9f4fc", box: "#ffffff", primary: "#9b59b6", secondary: "#8e44ad", text: "#333333", border: "#ebdef0", header: "#f5eef8", danger: "#e74c3c" } },
+    "single_orange": { name: "単色：オレンジ", cost: 7, colors: { bg: "#fdf5e6", box: "#ffffff", primary: "#e67e22", secondary: "#d35400", text: "#333333", border: "#f5cba7", header: "#fae5d3", danger: "#c0392b" } },
+    "single_pink": { name: "単色：ピンク", cost: 7, colors: { bg: "#fdf2f8", box: "#ffffff", primary: "#ff9ff3", secondary: "#f368e0", text: "#333333", border: "#fadbd8", header: "#fbeee6", danger: "#e91e63" } },
+
+    // --- 【2色】 (14スタンプ) ---
+    "double_wb": { name: "2色：ホワイト＆ブラック", cost: 14, colors: { bg: "#ffffff", box: "#f8f9fa", primary: "#000000", secondary: "#333333", text: "#000000", border: "#000000", header: "#e0e0e0", danger: "#e74c3c" } },
+    "double_red_pink": { name: "2色：レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#c0392b" } },
+    "double_yellow_green": { name: "2色：イエロー＆グリーン", cost: 14, colors: { bg: "#fafff0", box: "#ffffff", primary: "#f1c40f", secondary: "#2ecc71", text: "#333333", border: "#d5f5e3", header: "#f9e79f", danger: "#e67e22" } },
+    "double_blue_purple": { name: "2色：ブルー＆パープル", cost: 14, colors: { bg: "#f4f4fc", box: "#ffffff", primary: "#3498db", secondary: "#9b59b6", text: "#333333", border: "#d6eaf8", header: "#ebdef0", danger: "#c0392b" } },
+
+    // --- 【特殊】 (30スタンプに値下げ ＆ 組合せ追加) ---
+    "special_chocomint": { name: "特殊：チョコミント", cost: 30, colors: { bg: "#aaffc3", box: "#ffffff", primary: "#3e2723", secondary: "#5d4037", text: "#3e2723", border: "#81c784", header: "#aaffc3", danger: "#e74c3c" } },
+    "special_sakura": { name: "特殊：さくら抹茶", cost: 30, colors: { bg: "#fdeef4", box: "#ffffff", primary: "#4caf50", secondary: "#388e3c", text: "#4a4a4a", border: "#f8bbd0", header: "#c8e6c9", danger: "#e91e63" } },
+    "special_midnight": { name: "特殊：夜空の月", cost: 30, colors: { bg: "#0f0f2d", box: "#1b1b3a", primary: "#f1c40f", secondary: "#f39c12", text: "#ffffff", border: "#34495e", header: "#0f0f2d", danger: "#e74c3c" } },
+    "special_latte": { name: "特殊：カフェラテ", cost: 30, colors: { bg: "#f3e5d8", box: "#ffffff", primary: "#8d6e63", secondary: "#5d4037", text: "#4e342e", border: "#d7ccc8", header: "#e4d0c8", danger: "#a67c52" } },
+    "special_honey": { name: "特殊：ハニーレモン", cost: 30, colors: { bg: "#fffacd", box: "#ffffff", primary: "#ffd700", secondary: "#32cd32", text: "#8b4513", border: "#f0e68c", header: "#fffacd", danger: "#ff4500" } },
+    "special_wagashi": { name: "特殊：和菓子(あずき)", cost: 30, colors: { bg: "#f5f5f5", box: "#ffffff", primary: "#800000", secondary: "#556b2f", text: "#2f4f4f", border: "#dcdcdc", header: "#faf0e6", danger: "#8b0000" } },
+    "special_forest": { name: "特殊：深い森", cost: 30, colors: { bg: "#e9f5e9", box: "#ffffff", primary: "#228b22", secondary: "#8b4513", text: "#004225", border: "#c8e6c9", header: "#f5f5dc", danger: "#b22222" } }
 };
 
 // ==========================================
@@ -151,7 +176,10 @@ function setTotalStamps(val) {
     localStorage.setItem('sleepAppStamps', val);
     stampCountDisplay.textContent = val;
 }
-function getOwnedThemes() { return JSON.parse(localStorage.getItem('ownedThemes') || '["default"]'); }
+function getOwnedThemes() { 
+    // 初期状態で "light" と "dark" を所有済みにする
+    return JSON.parse(localStorage.getItem('ownedThemes') || '["light", "dark"]'); 
+}
 function setOwnedThemes(themesArray) { localStorage.setItem('ownedThemes', JSON.stringify(themesArray)); }
 
 // ==========================================
@@ -160,6 +188,7 @@ function setOwnedThemes(themesArray) { localStorage.setItem('ownedThemes', JSON.
 function applyTheme(themeId) {
     const theme = THEMES[themeId];
     if (!theme) return;
+    
     document.documentElement.style.setProperty('--bg-color', theme.colors.bg);
     document.documentElement.style.setProperty('--box-bg', theme.colors.box);
     document.documentElement.style.setProperty('--primary-color', theme.colors.primary);
@@ -167,6 +196,10 @@ function applyTheme(themeId) {
     document.documentElement.style.setProperty('--text-color', theme.colors.text);
     document.documentElement.style.setProperty('--border-color', theme.colors.border);
     document.documentElement.style.setProperty('--calendar-header', theme.colors.header);
+    
+    // 🌟 ボタンなどの「危険色」も連動させる
+    document.documentElement.style.setProperty('--danger-color', theme.colors.danger || "#e74c3c");
+    
     localStorage.setItem('currentTheme', themeId);
 }
 
@@ -175,31 +208,113 @@ function renderShopAndInventory() {
     inventoryItemsArea.innerHTML = "";
     const owned = getOwnedThemes();
     const currentStamps = getTotalStamps();
-    const currentTheme = localStorage.getItem('currentTheme') || 'default';
+    const currentTheme = localStorage.getItem('currentTheme') || 'light';
 
+    // ------------------------------------------
+    // 1. クローゼット（入手済みアイテム）の描画
+    // ------------------------------------------
     for (const [id, theme] of Object.entries(THEMES)) {
-        const card = document.createElement('div');
-        card.className = "theme-card";
-        const info = document.createElement('div');
-        info.innerHTML = `<h4>${theme.name}</h4>`;
-
         if (owned.includes(id)) {
-            info.innerHTML += `<span>入手済み</span>`;
+            const card = document.createElement('div');
+            card.className = "theme-card";
+            const info = document.createElement('div');
+            info.innerHTML = `<h4>${theme.name}</h4><span>入手済み</span>`;
+
             const actionBtn = document.createElement('button');
             if (currentTheme === id) {
-                actionBtn.textContent = "適用中"; actionBtn.disabled = true;
+                actionBtn.textContent = "適用中"; 
+                actionBtn.disabled = true;
             } else {
                 actionBtn.textContent = "着せ替える";
                 actionBtn.onclick = () => { applyTheme(id); renderShopAndInventory(); };
             }
-            card.appendChild(info); card.appendChild(actionBtn);
+            card.appendChild(info); 
+            card.appendChild(actionBtn);
             inventoryItemsArea.appendChild(card);
-        } else {
-            info.innerHTML += `<span>必要スタンプ: ${theme.cost}個</span>`;
+        }
+    }
+
+    // ------------------------------------------
+    // 2. ショップ（未入手アイテム）のカレンダー方式切り替え描画
+    // ------------------------------------------
+    const categories = [
+        { key: 'single', label: '🎨 単色テーマ (7スタンプ)' },
+        { key: 'double', label: '🌓 2色組み合わせ (14スタンプ)' },
+        { key: 'special', label: '✨ 特殊テーマ (30スタンプ)' }
+    ];
+
+    // 現在表示しているカテゴリの番号を記憶（最初は 0:単色）
+    let activeIdx = parseInt(localStorage.getItem('currentShopCategoryIdx') || '0', 10);
+    if (activeIdx < 0 || activeIdx >= categories.length) activeIdx = 0; 
+
+    const currentCategory = categories[activeIdx];
+
+    // --- カレンダー風のヘッダーナビゲーションを作成 ---
+    const headerContainer = document.createElement('div');
+    headerContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 15px; padding: 10px; background-color: var(--box-bg); border: 1px solid var(--border-color); border-radius: 8px;";
+
+    // 左矢印ボタン [◀]
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = "◀";
+    prevBtn.style.cssText = "background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); padding: 5px 15px; font-weight: bold;";
+    if (activeIdx === 0) {
+        prevBtn.style.opacity = "0.2"; 
+        prevBtn.disabled = true;
+    } else {
+        prevBtn.onclick = () => {
+            localStorage.setItem('currentShopCategoryIdx', activeIdx - 1);
+            renderShopAndInventory(); 
+        };
+    }
+
+    // 中央のカテゴリ名
+    const titleLabel = document.createElement('span');
+    titleLabel.textContent = currentCategory.label;
+    titleLabel.style.cssText = "font-weight: bold; font-size: 15px; color: var(--text-color);";
+
+    // 右矢印ボタン [▶]
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = "▶";
+    nextBtn.style.cssText = "background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); padding: 5px 15px; font-weight: bold;";
+    if (activeIdx === categories.length - 1) {
+        nextBtn.style.opacity = "0.2"; 
+        nextBtn.disabled = true;
+    } else {
+        nextBtn.onclick = () => {
+            localStorage.setItem('currentShopCategoryIdx', activeIdx + 1);
+            renderShopAndInventory(); 
+        };
+    }
+
+    headerContainer.appendChild(prevBtn);
+    headerContainer.appendChild(titleLabel);
+    headerContainer.appendChild(nextBtn);
+    shopItemsArea.appendChild(headerContainer);
+
+    // --- 選択されているカテゴリのテーマだけを絞り込んで表示 ---
+    const filteredThemes = Object.entries(THEMES).filter(([id]) => 
+        id.startsWith(currentCategory.key) && !owned.includes(id)
+    );
+
+    // カードを並べるためのグリッド容器
+    const gridContainer = document.createElement('div');
+    gridContainer.style.cssText = "display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 100%;";
+
+    if (filteredThemes.length === 0) {
+        gridContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #888; font-size: 14px;">このカテゴリはすべてコンプリートしました！🎉</div>`;
+    } else {
+        filteredThemes.forEach(([id, theme]) => {
+            const card = document.createElement('div');
+            card.className = "theme-card";
+            const info = document.createElement('div');
+            const displayName = theme.name.includes('：') ? theme.name.split('：')[1] : theme.name;
+            info.innerHTML = `<h4>${displayName}</h4><span>🪙 ${theme.cost}</span>`;
+
             const actionBtn = document.createElement('button');
             actionBtn.textContent = "購入";
             if (currentStamps < theme.cost) {
-                actionBtn.disabled = true; actionBtn.style.backgroundColor = "#95a5a6";
+                actionBtn.disabled = true; 
+                actionBtn.style.backgroundColor = "#95a5a6";
             } else {
                 actionBtn.onclick = () => {
                     pendingPurchase = { id: id, cost: theme.cost };
@@ -207,25 +322,60 @@ function renderShopAndInventory() {
                     purchaseModal.classList.remove('hidden'); 
                 };
             }
-            card.appendChild(info); card.appendChild(actionBtn);
-            shopItemsArea.appendChild(card);
-        }
+            card.appendChild(info); 
+            card.appendChild(actionBtn);
+            gridContainer.appendChild(card);
+        });
     }
+
+    shopItemsArea.appendChild(gridContainer);
 }
 
+// ==========================================
+// 🌟 購入確認モーダルのボタン処理
+// ==========================================
 modalYesBtn.addEventListener('click', () => {
     if (pendingPurchase) {
+        // 1. スタンプを減らして所持リストに追加
         const currentStamps = getTotalStamps();
         setTotalStamps(currentStamps - pendingPurchase.cost);
         const newOwned = getOwnedThemes();
         newOwned.push(pendingPurchase.id);
         setOwnedThemes(newOwned);
+        
+        // 2. 画面を再描画して購入状態を反映
         renderShopAndInventory();
+
+        // 3. 購入確認モーダルを閉じる
+        purchaseModal.classList.add('hidden');
+        
+        // 4. 「すぐ適用しますか？」モーダルを開く
+        applyPromptModal.classList.remove('hidden');
+
+        // ※ここで購入したテーマのIDを一時保存
+        const purchasedThemeId = pendingPurchase.id; 
+
+        // 「はい（すぐ適用する）」を押した時の処理
+        applyYesBtn.onclick = () => {
+            applyTheme(purchasedThemeId);
+            renderShopAndInventory(); // 適用中ボタンなどの表示を更新
+            applyPromptModal.classList.add('hidden');
+        };
+
+        // 「いいえ（あとで）」を押した時の処理
+        applyNoBtn.onclick = () => {
+            applyPromptModal.classList.add('hidden');
+        };
+
+        // pendingPurchase をリセット
+        pendingPurchase = null;
     }
-    purchaseModal.classList.add('hidden');
-    pendingPurchase = null;
 });
-modalNoBtn.addEventListener('click', () => { purchaseModal.classList.add('hidden'); pendingPurchase = null; });
+
+modalNoBtn.addEventListener('click', () => { 
+    purchaseModal.classList.add('hidden'); 
+    pendingPurchase = null; 
+});
 
 // ==========================================
 // 7. 目標時間の管理
@@ -260,13 +410,12 @@ clearTargetBtn.addEventListener('click', () => {
 });
 
 // ==========================================
-// 8. 平均計算・カレンダー描画処理（★平均計算追加）
+// 8. 平均計算・カレンダー描画処理
 // ==========================================
 function timeToMinutes(timeStr) {
     const parts = timeStr.split(':');
     let h = parseInt(parts[0], 10);
     let m = parseInt(parts[1], 10);
-    // 0時〜12時は夜中〜午前中として翌日扱い（24を足す）にする
     if (h < 12) h += 24;
     return h * 60 + m;
 }
@@ -294,7 +443,6 @@ function updateAverages() {
         30: { sleepSec: 0, startMin: 0, endMin: 0, count: 0 }
     };
 
-    // 今日を起点に過去30日分を走査
     for (let i = 0; i < 30; i++) {
         let d = new Date(today);
         d.setDate(today.getDate() - i);
@@ -386,7 +534,6 @@ function renderCalendar() {
         calendarGrid.appendChild(dayCell);
     }
     
-    // カレンダー描画時に平均データも更新する
     updateAverages();
 }
 prevMonthBtn.addEventListener('click', () => { displayDate.setMonth(displayDate.getMonth() - 1); renderCalendar(); });
@@ -560,12 +707,18 @@ navButtons.forEach(btn => {
 // ==========================================
 // 11. 画面起動時の初期化処理
 // ==========================================
+// 1. 保存されているスタンプ数や目標の表示を更新
 setTotalStamps(getTotalStamps());
 updateTargetDisplay();
 renderCalendar();
-applyTheme(localStorage.getItem('currentTheme') || 'default');
+
+// 2. テーマを適用（ダークモードは質素な青アクセントに変更済み。危険色も連動）
+applyTheme(localStorage.getItem('currentTheme') || 'light');
+
+// 3. カレンダー方式（◀ ▶ ボタン）になったショップとインベントリを描画
 renderShopAndInventory();
 
+// 4. 睡眠計測の状態を復元
 const savedStartTime = localStorage.getItem('sleepStartTime');
 if (savedStartTime) {
     switchSleepState('during');
