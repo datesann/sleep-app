@@ -149,7 +149,7 @@ const THEMES = {
 
     // --- 【2色】 (14スタンプ) ---
     "double_wb": { name: "2色：ホワイト＆ブラック", cost: 14, colors: { bg: "#ffffff", box: "#f8f9fa", primary: "#000000", secondary: "#333333", text: "#000000", border: "#000000", header: "#e0e0e0", danger: "#e74c3c" } },
-    "double_red_pink": { name: "2色：レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#c0392b" } },
+    "double_red_pink": { name: "2色：レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#2c3e50" } },
     "double_yellow_green": { name: "2色：イエロー＆グリーン", cost: 14, colors: { bg: "#fafff0", box: "#ffffff", primary: "#f1c40f", secondary: "#2ecc71", text: "#333333", border: "#d5f5e3", header: "#f9e79f", danger: "#e67e22" } },
     "double_blue_purple": { name: "2色：ブルー＆パープル", cost: 14, colors: { bg: "#f4f4fc", box: "#ffffff", primary: "#3498db", secondary: "#9b59b6", text: "#333333", border: "#d6eaf8", header: "#ebdef0", danger: "#c0392b" } },
 
@@ -170,6 +170,17 @@ function formatTime(date) { return date.toLocaleTimeString('ja-JP'); }
 function getLocalDateString(date) {
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+}
+function getAppDateString(dateObj) {
+    const d = new Date(dateObj.getTime());
+    // もし時間が4時未満（0:00〜3:59）なら、前日の日付として扱う
+    if (d.getHours() < 4) {
+        d.setDate(d.getDate() - 1); 
+    }
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
 }
 function getTotalStamps() { return parseInt(localStorage.getItem('sleepAppStamps') || '0', 10); }
 function setTotalStamps(val) {
@@ -382,17 +393,35 @@ modalNoBtn.addEventListener('click', () => {
 // ==========================================
 function updateTargetDisplay() {
     const savedTarget = localStorage.getItem('targetWakeUpTime');
+    const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
+    const todayStr = getAppDateString(new Date());
+
     if (savedTarget) {
         currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
         mainTargetDisplay.textContent = `現在の目標時間: ${savedTarget}`;
     } else {
-        currentTargetDisplay.textContent = "現在の目標: 未設定";
-        mainTargetDisplay.textContent = "現在の目標時間: 未設定";
+        // 目標はないが、今日すでに1回計測済みの場合の表示
+        if (targetMeasuredDate === todayStr) {
+            currentTargetDisplay.textContent = "現在の目標: 未設定 (本日分は計測済み)";
+            mainTargetDisplay.textContent = "現在の目標時間: 未設定 (本日分は計測済み)";
+        } else {
+            currentTargetDisplay.textContent = "現在の目標: 未設定";
+            mainTargetDisplay.textContent = "現在の目標時間: 未設定";
+        }
     }
     targetInput.value = "00:00"; 
 }
 
 setTargetBtn.addEventListener('click', () => {
+    const todayStr = getAppDateString(new Date());
+    const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
+
+    // 🌟 今日すでに計測済みなら、新たに起床時間を設定できないようにブロックする
+    if (targetMeasuredDate === todayStr) {
+        errorMessage.textContent = "エラー: 本日の目標計測は完了しています。明日の午前4時以降に再設定できます。";
+        return;
+    }
+
     if (targetInput.value) {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
         updateTargetDisplay();
@@ -403,6 +432,7 @@ setTargetBtn.addEventListener('click', () => {
         errorMessage.textContent = "エラー: 起床時間を入力してください。";
     }
 });
+
 clearTargetBtn.addEventListener('click', () => {
     localStorage.removeItem('targetWakeUpTime');
     updateTargetDisplay();
@@ -546,13 +576,31 @@ startBtn.addEventListener('click', () => {
     errorMessage.textContent = "";
     feedbackMessage.textContent = "";
     const now = new Date();
+    const todayStr = getAppDateString(now); // 4時切り替えの日付を使用
+    
+    // 計測開始時間を記録
     localStorage.setItem('sleepStartTime', now.getTime());
+    localStorage.setItem('sleepStartDateKey', todayStr);
+
+    const savedTarget = localStorage.getItem('targetWakeUpTime');
+    const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
+
+    // 目標が設定されており、かつ今日まだ計測をしていない場合のみ「目標付き計測」とする
+    if (savedTarget && targetMeasuredDate !== todayStr) {
+        localStorage.setItem('isTargetMeasurement', 'true');
+    } else {
+        localStorage.setItem('isTargetMeasurement', 'false');
+    }
+
     switchSleepState('during');
 });
 
 abortBtn.addEventListener('click', () => { abortModal.classList.remove('hidden'); });
 abortYesBtn.addEventListener('click', () => {
+    // 中断時は記録を破棄し、1回のカウント（消費）はしない
     localStorage.removeItem('sleepStartTime'); 
+    localStorage.removeItem('sleepStartDateKey');
+    localStorage.removeItem('isTargetMeasurement');
     abortModal.classList.add('hidden');
     switchSleepState('before'); 
 });
@@ -560,7 +608,10 @@ abortNoBtn.addEventListener('click', () => { abortModal.classList.add('hidden');
 
 endBtn.addEventListener('click', () => {
     const storedStartTimeStr = localStorage.getItem('sleepStartTime');
+    const startDateKey = localStorage.getItem('sleepStartDateKey');
+    const isTargetMeasurement = localStorage.getItem('isTargetMeasurement') === 'true';
     const targetTimeStr = localStorage.getItem('targetWakeUpTime');
+
     if (!storedStartTimeStr) { return; }
 
     const startTimeMs = parseInt(storedStartTimeStr, 10);
@@ -574,6 +625,13 @@ endBtn.addEventListener('click', () => {
     const currentDurationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
     durationDisplay.textContent = `今回の睡眠: ${currentDurationText}`;
 
+    // 起床時間を設定した計測（目標あり）の場合のみ、権利を1回分消費して未設定に戻す
+    if (isTargetMeasurement) {
+        localStorage.setItem('targetMeasuredDate', startDateKey);
+        localStorage.removeItem('targetWakeUpTime'); // 起床時間を削除（強制的に未設定にする）
+    }
+
+    // エラー判定
     if (diffSec < MIN_DURATION_SEC) {
         errorModalMessage.textContent = `${MIN_DURATION_SEC}秒以下は計測できません。`;
         errorModal.classList.remove('hidden');
@@ -586,13 +644,19 @@ endBtn.addEventListener('click', () => {
     }
 
     localStorage.removeItem('sleepStartTime'); 
-    const dateKey = getLocalDateString(endTime); 
+    localStorage.removeItem('sleepStartDateKey');
+    localStorage.removeItem('isTargetMeasurement');
+
+    const dateKey = startDateKey; // カレンダーの記録日は計測開始日
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
     
     const existingData = history[dateKey];
     let totalDiffSec = diffSec;
+    
+    // 就寝時間(start)と起床時間(end)の初期値を、今回の計測時間に設定
     let finalStart = formatTime(startTime);
     let finalEnd = formatTime(endTime);
+    
     let isStampEarned = existingData ? existingData.hasStamp : false;
     let isBonusEarned = existingData ? existingData.isBonus : false;
     let currentComment = existingData ? existingData.comment : "";
@@ -600,7 +664,11 @@ endBtn.addEventListener('click', () => {
 
     if (existingData && existingData.diffSec !== undefined) {
         totalDiffSec += existingData.diffSec;
-        finalStart = existingData.start; 
+        // すでに目標設定時のデータ（就寝・起床時間）が記録されている場合は、それを維持する
+        if (existingData.start) {
+            finalStart = existingData.start;
+            finalEnd = existingData.end;
+        }
     }
 
     const totalH = Math.floor(totalDiffSec / 3600);
@@ -608,7 +676,8 @@ endBtn.addEventListener('click', () => {
     const totalS = totalDiffSec % 60;
     const totalDurationText = `${totalH}時間 ${totalM}分 ${totalS}秒`;
 
-    if (targetTimeStr) {
+    // 起床時間を設定した計測（目標あり）だった場合のみ、目標判定とスタンプ処理を行う
+    if (isTargetMeasurement && targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
         targetDate.setHours(targetHour, targetMin, 0, 0);
@@ -626,8 +695,9 @@ endBtn.addEventListener('click', () => {
                 
                 let consecutiveDays = 1; 
                 for (let i = 1; i <= 6; i++) {
-                    const checkDate = new Date(endTime); checkDate.setDate(checkDate.getDate() - i);
-                    const checkKey = getLocalDateString(checkDate);
+                    const checkDate = new Date(startTime); 
+                    checkDate.setDate(checkDate.getDate() - i);
+                    const checkKey = getAppDateString(checkDate);
                     if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++; else break; 
                 }
                 if (consecutiveDays === 7) { 
@@ -637,18 +707,26 @@ endBtn.addEventListener('click', () => {
                 }
                 setTotalStamps(totalStamps);
             }
-        } else {
-            feedbackMessage.textContent = "結果の測定完了！(スタンプは本日獲得済みです)"; 
-            feedbackMessage.style.color = "var(--text-color)";
         }
         commentSection.classList.remove('hidden');
         commentInput.value = currentComment; 
     } else {
-        feedbackMessage.textContent = "結果の測定完了！（目標未設定）"; 
+        // 起床時間を設定していない通常計測の場合
+        feedbackMessage.textContent = "結果の測定完了！（通常計測として記録しました）"; 
         feedbackMessage.style.color = "var(--text-color)";
         commentSection.classList.add('hidden');
+        
+        // 通常計測の場合は、過去の就寝・起床時間をそのまま引き継ぐ（未設定なら空にする）
+        if (existingData) {
+            finalStart = existingData.start || "";
+            finalEnd = existingData.end || "";
+        } else {
+            finalStart = "";
+            finalEnd = "";
+        }
     }
 
+    // 履歴を保存
     history[dateKey] = { 
         start: finalStart, 
         end: finalEnd, 
@@ -663,31 +741,25 @@ endBtn.addEventListener('click', () => {
     currentCommentDateKey = dateKey; 
     renderCalendar(); 
     renderShopAndInventory(); 
+    updateTargetDisplay(); // 画面の表示を更新
     switchSleepState('after');
 });
 
 errorModalCloseBtn.addEventListener('click', () => {
     localStorage.removeItem('sleepStartTime'); 
+    localStorage.removeItem('sleepStartDateKey');
+    localStorage.removeItem('isTargetMeasurement');
     errorModal.classList.add('hidden');
     switchSleepState('before');
+    updateTargetDisplay(); // エラー後も未設定状態を反映
 });
 
 completeBtn.addEventListener('click', () => {
-    if (currentCommentDateKey) {
-        const commentText = commentInput.value.trim();
-        if (commentText) {
-            const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
-            if (history[currentCommentDateKey]) {
-                history[currentCommentDateKey].comment = commentText;
-                localStorage.setItem('sleepAppHistory', JSON.stringify(history));
-                renderCalendar(); 
-            }
-        }
-        currentCommentDateKey = null; 
-    }
-    errorMessage.textContent = "";
-    feedbackMessage.textContent = "";
+    // ホーム画面（計測前）の状態に戻す
     switchSleepState('before');
+    
+    // 次回の計測のためにコメント欄を空にしておく
+    commentInput.value = "";
 });
 
 // ==========================================
