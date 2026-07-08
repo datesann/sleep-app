@@ -1,5 +1,5 @@
 // ==========================================
-// 1. 初期設定と要素取得（エラー防止のため最上部に集約）
+// 1. 初期設定と要素取得
 // ==========================================
 // タブ関連
 const navButtons = document.querySelectorAll('.nav-btn');
@@ -51,12 +51,10 @@ const abortModal = document.getElementById('abort-modal');
 const abortYesBtn = document.getElementById('abort-yes-btn');
 const abortNoBtn = document.getElementById('abort-no-btn');
 
-// 計測エラーモーダル関連
 const errorModal = document.getElementById('measurement-error-modal');
 const errorModalMessage = document.getElementById('measurement-error-message');
 const errorModalCloseBtn = document.getElementById('measurement-error-close-btn');
 
-// 右上ナビゲーション＆設定・ヘルプモーダル
 const navSettingsBtn = document.getElementById('nav-settings-btn');
 const navHelpBtn = document.getElementById('nav-help-btn');
 const settingsMenuModal = document.getElementById('settings-menu-modal');
@@ -69,11 +67,9 @@ const goToBgBtn = document.getElementById('go-to-bg-btn');
 const closeModalBtns = document.querySelectorAll('.close-modal-btn');
 const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
 
-// 一言コメント関連
 const commentSection = document.getElementById('comment-section');
 const commentInput = document.getElementById('comment-input');
 
-// 定数・グローバル変数
 const MIN_DURATION_SEC = 3;   
 const MAX_DURATION_SEC = 300; 
 let displayDate = new Date();
@@ -81,7 +77,7 @@ let pendingPurchase = null;
 let currentCommentDateKey = null; 
 
 // ==========================================
-// 2. 睡眠管理タブ 状態（フェーズ）切り替えロジック
+// 2. 睡眠管理タブ 状態切り替えロジック
 // ==========================================
 function switchSleepState(state) {
     sleepStateBefore.classList.add('hidden');
@@ -137,7 +133,7 @@ backToMenuBtns.forEach(btn => {
 });
 
 // ==========================================
-// 4. 着せ替え（テーマ）データ定義
+// 4. 着せ替えデータ定義
 // ==========================================
 const THEMES = {
     "default": { name: "デフォルト (青/白)", cost: 0, colors: { bg: "#f0f4f8", box: "#ffffff", primary: "#3498db", secondary: "#2c3e50", text: "#333333", border: "#3498db", header: "#34495e" } },
@@ -272,14 +268,18 @@ clearTargetBtn.addEventListener('click', () => {
 });
 
 // ==========================================
-// 8. カレンダーの描画処理
+// 8. カレンダーの描画処理（月間合計を削除）
 // ==========================================
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
-    const realToday = new Date(); const viewYear = displayDate.getFullYear(); const viewMonth = displayDate.getMonth(); 
+    const realToday = new Date(); 
+    const viewYear = displayDate.getFullYear(); 
+    const viewMonth = displayDate.getMonth(); 
+    
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
     const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
-    prevMonthBtn.disabled = (monthDiff <= -1); nextMonthBtn.disabled = (monthDiff >= 1);  
+    prevMonthBtn.disabled = (monthDiff <= -1); 
+    nextMonthBtn.disabled = (monthDiff >= 1);  
 
     const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
     weekdays.forEach(day => {
@@ -292,25 +292,29 @@ function renderCalendar() {
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
     
     for (let i = 0; i < firstDayIndex; i++) { calendarGrid.appendChild(document.createElement("div")); }
+    
     for (let day = 1; day <= totalDays; day++) {
         const dayCell = document.createElement("div");
         dayCell.className = "calendar-day";
         if (day === realToday.getDate() && viewMonth === realToday.getMonth() && viewYear === realToday.getFullYear()) {
             dayCell.classList.add("today");
         }
+        
         const numberDiv = document.createElement("div");
         numberDiv.className = "day-number"; numberDiv.textContent = day; dayCell.appendChild(numberDiv);
         const dateKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
         if (history[dateKey]) {
             const data = history[dateKey];
+
             if (data.hasStamp) {
                 const stampDiv = document.createElement("div");
                 stampDiv.className = "day-stamp"; stampDiv.textContent = data.isBonus ? "💮🎁✨" : "💮"; dayCell.appendChild(stampDiv);
             }
             const infoDiv = document.createElement("div");
             infoDiv.className = "day-info";
-            let infoHtml = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠: ${data.duration}`;
+            // ★ カレンダーには「1日の合計」でフォーマットされた duration が表示されます
+            let infoHtml = `就寝: ${data.start}<br>起床: ${data.end}<br>睡眠(合計): ${data.duration}`;
             if (data.comment) { infoHtml += `<span class="day-comment">💬 ${data.comment}</span>`; }
             infoDiv.innerHTML = infoHtml; dayCell.appendChild(infoDiv);
         }
@@ -321,7 +325,7 @@ prevMonthBtn.addEventListener('click', () => { displayDate.setMonth(displayDate.
 nextMonthBtn.addEventListener('click', () => { displayDate.setMonth(displayDate.getMonth() + 1); renderCalendar(); });
 
 // ==========================================
-// 9. 計測処理
+// 9. 計測処理（★1日の計測結果を合算する処理を追加）
 // ==========================================
 startBtn.addEventListener('click', () => {
     errorMessage.textContent = "";
@@ -351,9 +355,12 @@ endBtn.addEventListener('click', () => {
     startTimeDisplay.textContent = formatTime(startTime);
     endTimeDisplay.textContent = formatTime(endTime);
 
+    // 今回の計測秒数
     const diffSec = Math.floor((endTime.getTime() - startTimeMs) / 1000);
-    const durationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
-    durationDisplay.textContent = `睡眠時間: ${durationText}`;
+    
+    // 計測結果画面には今回の時間を表示
+    const currentDurationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
+    durationDisplay.textContent = `今回の睡眠: ${currentDurationText}`;
 
     if (diffSec < MIN_DURATION_SEC) {
         errorModalMessage.textContent = `${MIN_DURATION_SEC}秒以下は計測できません。`;
@@ -368,55 +375,89 @@ endBtn.addEventListener('click', () => {
 
     localStorage.removeItem('sleepStartTime'); 
 
+    const dateKey = getLocalDateString(endTime); 
+    const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
+    
+    // ★ 既に同じ日のデータがあるかチェック
+    const existingData = history[dateKey];
+    let totalDiffSec = diffSec;
+    let finalStart = formatTime(startTime);
+    let finalEnd = formatTime(endTime);
+    let isStampEarned = existingData ? existingData.hasStamp : false;
+    let isBonusEarned = existingData ? existingData.isBonus : false;
+    let currentComment = existingData ? existingData.comment : "";
+    let totalStamps = getTotalStamps();
+
+    // ★ 既存データがあれば合算して「1日の合計」を出す
+    if (existingData && existingData.diffSec !== undefined) {
+        totalDiffSec += existingData.diffSec;
+        finalStart = existingData.start; // 就寝時間はその日の最初のものを維持
+    }
+
+    const totalH = Math.floor(totalDiffSec / 3600);
+    const totalM = Math.floor((totalDiffSec % 3600) / 60);
+    const totalS = totalDiffSec % 60;
+    const totalDurationText = `${totalH}時間 ${totalM}分 ${totalS}秒`;
+
     if (targetTimeStr) {
-        let isStampEarned = false; 
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
         targetDate.setHours(targetHour, targetMin, 0, 0);
         const timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
 
-        if (timeGapSec < -60) {
-            feedbackMessage.textContent = "早起きですね！"; feedbackMessage.style.color = "var(--primary-color)"; 
-        } else if (timeGapSec > 60) {
-            feedbackMessage.textContent = "寝坊ですかな？"; feedbackMessage.style.color = "#e67e22"; 
-        } else {
-            feedbackMessage.textContent = "いい調子ですね！"; feedbackMessage.style.color = "#2ecc71"; 
-            isStampEarned = true;
-        }
-
-        const dateKey = getLocalDateString(endTime); 
-        const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
-        let totalStamps = getTotalStamps();
-        let isBonusEarned = false;
-
-        if (isStampEarned) {
-            totalStamps += 1; 
-            let consecutiveDays = 1; 
-            for (let i = 1; i <= 6; i++) {
-                const checkDate = new Date(endTime); checkDate.setDate(checkDate.getDate() - i);
-                const checkKey = getLocalDateString(checkDate);
-                if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++; else break; 
+        // スタンプ判定は、まだその日で獲得していなければ行う
+        if (!isStampEarned) {
+            if (timeGapSec < -60) {
+                feedbackMessage.textContent = "早起きですね！"; feedbackMessage.style.color = "var(--primary-color)"; 
+            } else if (timeGapSec > 60) {
+                feedbackMessage.textContent = "寝坊ですかな？"; feedbackMessage.style.color = "#e67e22"; 
+            } else {
+                feedbackMessage.textContent = "いい調子ですね！"; feedbackMessage.style.color = "#2ecc71"; 
+                isStampEarned = true;
+                totalStamps += 1; 
+                
+                let consecutiveDays = 1; 
+                for (let i = 1; i <= 6; i++) {
+                    const checkDate = new Date(endTime); checkDate.setDate(checkDate.getDate() - i);
+                    const checkKey = getLocalDateString(checkDate);
+                    if (history[checkKey] && history[checkKey].hasStamp) consecutiveDays++; else break; 
+                }
+                if (consecutiveDays === 7) { 
+                    totalStamps += 1; 
+                    isBonusEarned = true; 
+                    feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！"; 
+                }
+                setTotalStamps(totalStamps);
             }
-            if (consecutiveDays === 7) { totalStamps += 1; isBonusEarned = true; feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！"; }
+        } else {
+            feedbackMessage.textContent = "結果の測定完了！(スタンプは本日獲得済みです)"; 
+            feedbackMessage.style.color = "var(--text-color)";
         }
 
-        history[dateKey] = { 
-            start: formatTime(startTime), end: formatTime(endTime), duration: durationText, 
-            hasStamp: isStampEarned, isBonus: isBonusEarned, comment: "" 
-        };
-        localStorage.setItem('sleepAppHistory', JSON.stringify(history));
-        setTotalStamps(totalStamps);
-        renderCalendar(); renderShopAndInventory(); 
-
-        currentCommentDateKey = dateKey; 
-        
         commentSection.classList.remove('hidden');
-        commentInput.value = ""; // 入力欄をクリア
+        commentInput.value = currentComment; 
     } else {
         feedbackMessage.textContent = "結果の測定完了！（目標未設定）"; 
         feedbackMessage.style.color = "var(--text-color)";
         commentSection.classList.add('hidden');
     }
+
+    // 履歴に上書き（合算済みのデータ）
+    history[dateKey] = { 
+        start: finalStart, 
+        end: finalEnd, 
+        duration: totalDurationText, 
+        hasStamp: isStampEarned, 
+        isBonus: isBonusEarned, 
+        comment: currentComment,
+        diffSec: totalDiffSec
+    };
+    localStorage.setItem('sleepAppHistory', JSON.stringify(history));
+
+    currentCommentDateKey = dateKey; 
+    
+    renderCalendar(); 
+    renderShopAndInventory(); 
 
     switchSleepState('after');
 });
@@ -427,9 +468,7 @@ errorModalCloseBtn.addEventListener('click', () => {
     switchSleepState('before');
 });
 
-// ▼【変更点】完了ボタンを押したタイミングでコメントを保存
 completeBtn.addEventListener('click', () => {
-    // 1. コメント入力欄に文字が入っていれば履歴を更新して保存
     if (currentCommentDateKey) {
         const commentText = commentInput.value.trim();
         if (commentText) {
@@ -440,10 +479,9 @@ completeBtn.addEventListener('click', () => {
                 renderCalendar(); 
             }
         }
-        currentCommentDateKey = null; // リセット
+        currentCommentDateKey = null; 
     }
 
-    // 2. メッセージをクリアして初期画面へ戻る
     errorMessage.textContent = "";
     feedbackMessage.textContent = "";
     switchSleepState('before');
