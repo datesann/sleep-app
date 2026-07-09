@@ -159,10 +159,11 @@
         <div class="modal-content">
             <h2>⏰ 起床時間の設定</h2>
             <div class="modal-inner-content">
-                <input type="time" id="target-time-input" value="00:00">
+                <input type="time" id="target-time-input" value="">
                 <br>
                 <button id="set-target-btn">目標を保存</button>
                 <button id="clear-target-btn" class="danger-btn">目標を削除</button>
+                <p id="wakeup-error-message" style="color: #e74c3c; font-weight: bold; margin-top: 15px;"></p>
                 <p id="current-target-display">現在の目標: 未設定</p>
             </div>
             <button class="back-to-menu-btn danger-btn" data-current="wakeup-setting-modal">戻る</button>

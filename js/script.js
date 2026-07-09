@@ -9,6 +9,7 @@ const setTargetBtn = document.getElementById('set-target-btn');
 const clearTargetBtn = document.getElementById('clear-target-btn');
 const currentTargetDisplay = document.getElementById('current-target-display');
 const mainTargetDisplay = document.getElementById('main-target-display'); 
+const wakeupErrorMessage = document.getElementById('wakeup-error-message'); // 🌟 モーダル用エラー要素追加
 
 const sleepStateBefore = document.getElementById('sleep-state-before');
 const sleepStateDuring = document.getElementById('sleep-state-during');
@@ -39,7 +40,6 @@ const modalMessage = document.getElementById('modal-message');
 const modalYesBtn = document.getElementById('modal-yes-btn');
 const modalNoBtn = document.getElementById('modal-no-btn');
 
-// 🌟 追加: 適用確認モーダルの要素取得
 const applyPromptModal = document.getElementById('apply-prompt-modal');
 const applyYesBtn = document.getElementById('apply-yes-btn');
 const applyNoBtn = document.getElementById('apply-no-btn');
@@ -108,6 +108,7 @@ navHelpBtn.addEventListener('click', () => { if(!navHelpBtn.disabled) helpModal.
 goToWakeupBtn.addEventListener('click', () => {
     settingsMenuModal.classList.add('hidden');
     wakeupSettingModal.classList.remove('hidden');
+    wakeupErrorMessage.textContent = ""; // 🌟 開くときにエラー文言をクリア
 });
 goToBgBtn.addEventListener('click', () => {
     settingsMenuModal.classList.add('hidden');
@@ -133,12 +134,8 @@ backToMenuBtns.forEach(btn => {
 // 4. 着せ替えデータ定義
 // ==========================================
 const THEMES = {
-    // --- 【初期所有】 ---
-    // ダークモードを豪華から「質素（青アクセント）」に変更
     "light": { name: "ライト (初期設定)", cost: 0, colors: { bg: "#f8f9fa", box: "#ffffff", primary: "#3498db", secondary: "#6c757d", text: "#333333", border: "#dee2e6", header: "#e9ecef", danger: "#e74c3c" } },
     "dark": { name: "ダーク (質素な青)", cost: 0, colors: { bg: "#1e1e1e", box: "#2d2d2d", primary: "#3498db", secondary: "#5dade2", text: "#e0e0e0", border: "#444444", header: "#252525", danger: "#c0392b" } },
-
-    // --- 【単色】 (7スタンプ) ---
     "single_red": { name: "単色：レッド", cost: 7, colors: { bg: "#fff5f5", box: "#ffffff", primary: "#e74c3c", secondary: "#c0392b", text: "#333333", border: "#fadbd8", header: "#f2d7d5", danger: "#2c3e50" } },
     "single_blue": { name: "単色：ブルー", cost: 7, colors: { bg: "#f4f6f7", box: "#ffffff", primary: "#3498db", secondary: "#2980b9", text: "#333333", border: "#d6eaf8", header: "#ebf5fb", danger: "#e74c3c" } },
     "single_yellow": { name: "単色：イエロー", cost: 7, colors: { bg: "#fcf9f2", box: "#ffffff", primary: "#f1c40f", secondary: "#f39c12", text: "#333333", border: "#f9e79f", header: "#fcf3cf", danger: "#e74c3c" } },
@@ -146,14 +143,10 @@ const THEMES = {
     "single_purple": { name: "単色：パープル", cost: 7, colors: { bg: "#f9f4fc", box: "#ffffff", primary: "#9b59b6", secondary: "#8e44ad", text: "#333333", border: "#ebdef0", header: "#f5eef8", danger: "#e74c3c" } },
     "single_orange": { name: "単色：オレンジ", cost: 7, colors: { bg: "#fdf5e6", box: "#ffffff", primary: "#e67e22", secondary: "#d35400", text: "#333333", border: "#f5cba7", header: "#fae5d3", danger: "#c0392b" } },
     "single_pink": { name: "単色：ピンク", cost: 7, colors: { bg: "#fdf2f8", box: "#ffffff", primary: "#ff9ff3", secondary: "#f368e0", text: "#333333", border: "#fadbd8", header: "#fbeee6", danger: "#e91e63" } },
-
-    // --- 【2色】 (14スタンプ) ---
     "double_wb": { name: "2色：ホワイト＆ブラック", cost: 14, colors: { bg: "#ffffff", box: "#f8f9fa", primary: "#000000", secondary: "#333333", text: "#000000", border: "#000000", header: "#e0e0e0", danger: "#e74c3c" } },
     "double_red_pink": { name: "2色：レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#2c3e50" } },
     "double_yellow_green": { name: "2色：イエロー＆グリーン", cost: 14, colors: { bg: "#fafff0", box: "#ffffff", primary: "#f1c40f", secondary: "#2ecc71", text: "#333333", border: "#d5f5e3", header: "#f9e79f", danger: "#e67e22" } },
     "double_blue_purple": { name: "2色：ブルー＆パープル", cost: 14, colors: { bg: "#f4f4fc", box: "#ffffff", primary: "#3498db", secondary: "#9b59b6", text: "#333333", border: "#d6eaf8", header: "#ebdef0", danger: "#c0392b" } },
-
-    // --- 【特殊】 (30スタンプに値下げ ＆ 組合せ追加) ---
     "special_chocomint": { name: "特殊：チョコミント", cost: 30, colors: { bg: "#aaffc3", box: "#ffffff", primary: "#3e2723", secondary: "#5d4037", text: "#3e2723", border: "#81c784", header: "#aaffc3", danger: "#e74c3c" } },
     "special_sakura": { name: "特殊：さくら抹茶", cost: 30, colors: { bg: "#fdeef4", box: "#ffffff", primary: "#4caf50", secondary: "#388e3c", text: "#4a4a4a", border: "#f8bbd0", header: "#c8e6c9", danger: "#e91e63" } },
     "special_midnight": { name: "特殊：夜空の月", cost: 30, colors: { bg: "#0f0f2d", box: "#1b1b3a", primary: "#f1c40f", secondary: "#f39c12", text: "#ffffff", border: "#34495e", header: "#0f0f2d", danger: "#e74c3c" } },
@@ -173,7 +166,6 @@ function getLocalDateString(date) {
 }
 function getAppDateString(dateObj) {
     const d = new Date(dateObj.getTime());
-    // もし時間が4時未満（0:00〜3:59）なら、前日の日付として扱う
     if (d.getHours() < 4) {
         d.setDate(d.getDate() - 1); 
     }
@@ -188,7 +180,6 @@ function setTotalStamps(val) {
     stampCountDisplay.textContent = val;
 }
 function getOwnedThemes() { 
-    // 初期状態で "light" と "dark" を所有済みにする
     return JSON.parse(localStorage.getItem('ownedThemes') || '["light", "dark"]'); 
 }
 function setOwnedThemes(themesArray) { localStorage.setItem('ownedThemes', JSON.stringify(themesArray)); }
@@ -207,8 +198,6 @@ function applyTheme(themeId) {
     document.documentElement.style.setProperty('--text-color', theme.colors.text);
     document.documentElement.style.setProperty('--border-color', theme.colors.border);
     document.documentElement.style.setProperty('--calendar-header', theme.colors.header);
-    
-    // 🌟 ボタンなどの「危険色」も連動させる
     document.documentElement.style.setProperty('--danger-color', theme.colors.danger || "#e74c3c");
     
     localStorage.setItem('currentTheme', themeId);
@@ -221,9 +210,6 @@ function renderShopAndInventory() {
     const currentStamps = getTotalStamps();
     const currentTheme = localStorage.getItem('currentTheme') || 'light';
 
-    // ------------------------------------------
-    // 1. クローゼット（入手済みアイテム）の描画
-    // ------------------------------------------
     for (const [id, theme] of Object.entries(THEMES)) {
         if (owned.includes(id)) {
             const card = document.createElement('div');
@@ -245,26 +231,20 @@ function renderShopAndInventory() {
         }
     }
 
-    // ------------------------------------------
-    // 2. ショップ（未入手アイテム）のカレンダー方式切り替え描画
-    // ------------------------------------------
     const categories = [
         { key: 'single', label: '🎨 単色テーマ (7スタンプ)' },
         { key: 'double', label: '🌓 2色組み合わせ (14スタンプ)' },
         { key: 'special', label: '✨ 特殊テーマ (30スタンプ)' }
     ];
 
-    // 現在表示しているカテゴリの番号を記憶（最初は 0:単色）
     let activeIdx = parseInt(localStorage.getItem('currentShopCategoryIdx') || '0', 10);
     if (activeIdx < 0 || activeIdx >= categories.length) activeIdx = 0; 
 
     const currentCategory = categories[activeIdx];
 
-    // --- カレンダー風のヘッダーナビゲーションを作成 ---
     const headerContainer = document.createElement('div');
     headerContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 15px; padding: 10px; background-color: var(--box-bg); border: 1px solid var(--border-color); border-radius: 8px;";
 
-    // 左矢印ボタン [◀]
     const prevBtn = document.createElement('button');
     prevBtn.textContent = "◀";
     prevBtn.style.cssText = "background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); padding: 5px 15px; font-weight: bold;";
@@ -278,12 +258,10 @@ function renderShopAndInventory() {
         };
     }
 
-    // 中央のカテゴリ名
     const titleLabel = document.createElement('span');
     titleLabel.textContent = currentCategory.label;
     titleLabel.style.cssText = "font-weight: bold; font-size: 15px; color: var(--text-color);";
 
-    // 右矢印ボタン [▶]
     const nextBtn = document.createElement('button');
     nextBtn.textContent = "▶";
     nextBtn.style.cssText = "background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-color); padding: 5px 15px; font-weight: bold;";
@@ -302,12 +280,10 @@ function renderShopAndInventory() {
     headerContainer.appendChild(nextBtn);
     shopItemsArea.appendChild(headerContainer);
 
-    // --- 選択されているカテゴリのテーマだけを絞り込んで表示 ---
     const filteredThemes = Object.entries(THEMES).filter(([id]) => 
         id.startsWith(currentCategory.key) && !owned.includes(id)
     );
 
-    // カードを並べるためのグリッド容器
     const gridContainer = document.createElement('div');
     gridContainer.style.cssText = "display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 100%;";
 
@@ -343,42 +319,32 @@ function renderShopAndInventory() {
 }
 
 // ==========================================
-// 🌟 購入確認モーダルのボタン処理
+// 購入確認モーダルのボタン処理
 // ==========================================
 modalYesBtn.addEventListener('click', () => {
     if (pendingPurchase) {
-        // 1. スタンプを減らして所持リストに追加
         const currentStamps = getTotalStamps();
         setTotalStamps(currentStamps - pendingPurchase.cost);
         const newOwned = getOwnedThemes();
         newOwned.push(pendingPurchase.id);
         setOwnedThemes(newOwned);
         
-        // 2. 画面を再描画して購入状態を反映
         renderShopAndInventory();
-
-        // 3. 購入確認モーダルを閉じる
         purchaseModal.classList.add('hidden');
-        
-        // 4. 「すぐ適用しますか？」モーダルを開く
         applyPromptModal.classList.remove('hidden');
 
-        // ※ここで購入したテーマのIDを一時保存
         const purchasedThemeId = pendingPurchase.id; 
 
-        // 「はい（すぐ適用する）」を押した時の処理
         applyYesBtn.onclick = () => {
             applyTheme(purchasedThemeId);
-            renderShopAndInventory(); // 適用中ボタンなどの表示を更新
+            renderShopAndInventory(); 
             applyPromptModal.classList.add('hidden');
         };
 
-        // 「いいえ（あとで）」を押した時の処理
         applyNoBtn.onclick = () => {
             applyPromptModal.classList.add('hidden');
         };
 
-        // pendingPurchase をリセット
         pendingPurchase = null;
     }
 });
@@ -400,7 +366,6 @@ function updateTargetDisplay() {
         currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
         mainTargetDisplay.textContent = `現在の目標時間: ${savedTarget}`;
     } else {
-        // 目標はないが、今日すでに1回計測済みの場合の表示
         if (targetMeasuredDate === todayStr) {
             currentTargetDisplay.textContent = "現在の目標: 未設定 (本日分は計測済み)";
             mainTargetDisplay.textContent = "現在の目標時間: 未設定 (本日分は計測済み)";
@@ -409,34 +374,33 @@ function updateTargetDisplay() {
             mainTargetDisplay.textContent = "現在の目標時間: 未設定";
         }
     }
-    targetInput.value = "00:00"; 
+    targetInput.value = ""; // 🌟 初期値を"00:00"ではなく空("")に変更して未入力テストをしやすくする
 }
 
 setTargetBtn.addEventListener('click', () => {
     const todayStr = getAppDateString(new Date());
     const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
 
-    // 🌟 今日すでに計測済みなら、新たに起床時間を設定できないようにブロックする
     if (targetMeasuredDate === todayStr) {
-        errorMessage.textContent = "エラー: 本日の目標計測は完了しています。明日の午前4時以降に再設定できます。";
+        wakeupErrorMessage.textContent = "エラー: 本日の目標計測は完了しています。"; // 🌟 エラーの出力先を変更
         return;
     }
 
     if (targetInput.value) {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
         updateTargetDisplay();
-        errorMessage.textContent = "";
+        wakeupErrorMessage.textContent = ""; // 🌟 エラーをクリア
         wakeupSettingModal.classList.add('hidden');
         settingsMenuModal.classList.remove('hidden');
     } else {
-        errorMessage.textContent = "エラー: 起床時間を入力してください。";
+        wakeupErrorMessage.textContent = "時間が設定されていません"; // 🌟 期待値通りに出力先と文言を変更
     }
 });
 
 clearTargetBtn.addEventListener('click', () => {
     localStorage.removeItem('targetWakeUpTime');
     updateTargetDisplay();
-    errorMessage.textContent = "";
+    wakeupErrorMessage.textContent = ""; // 🌟 エラーをクリア
 });
 
 // ==========================================
@@ -576,16 +540,14 @@ startBtn.addEventListener('click', () => {
     errorMessage.textContent = "";
     feedbackMessage.textContent = "";
     const now = new Date();
-    const todayStr = getAppDateString(now); // 4時切り替えの日付を使用
+    const todayStr = getAppDateString(now); 
     
-    // 計測開始時間を記録
     localStorage.setItem('sleepStartTime', now.getTime());
     localStorage.setItem('sleepStartDateKey', todayStr);
 
     const savedTarget = localStorage.getItem('targetWakeUpTime');
     const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
 
-    // 目標が設定されており、かつ今日まだ計測をしていない場合のみ「目標付き計測」とする
     if (savedTarget && targetMeasuredDate !== todayStr) {
         localStorage.setItem('isTargetMeasurement', 'true');
     } else {
@@ -597,7 +559,6 @@ startBtn.addEventListener('click', () => {
 
 abortBtn.addEventListener('click', () => { abortModal.classList.remove('hidden'); });
 abortYesBtn.addEventListener('click', () => {
-    // 中断時は記録を破棄し、1回のカウント（消費）はしない
     localStorage.removeItem('sleepStartTime'); 
     localStorage.removeItem('sleepStartDateKey');
     localStorage.removeItem('isTargetMeasurement');
@@ -625,13 +586,11 @@ endBtn.addEventListener('click', () => {
     const currentDurationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
     durationDisplay.textContent = `今回の睡眠: ${currentDurationText}`;
 
-    // 起床時間を設定した計測（目標あり）の場合のみ、権利を1回分消費して未設定に戻す
     if (isTargetMeasurement) {
         localStorage.setItem('targetMeasuredDate', startDateKey);
-        localStorage.removeItem('targetWakeUpTime'); // 起床時間を削除（強制的に未設定にする）
+        localStorage.removeItem('targetWakeUpTime'); 
     }
 
-    // エラー判定
     if (diffSec < MIN_DURATION_SEC) {
         errorModalMessage.textContent = `${MIN_DURATION_SEC}秒以下は計測できません。`;
         errorModal.classList.remove('hidden');
@@ -647,13 +606,12 @@ endBtn.addEventListener('click', () => {
     localStorage.removeItem('sleepStartDateKey');
     localStorage.removeItem('isTargetMeasurement');
 
-    const dateKey = startDateKey; // カレンダーの記録日は計測開始日
+    const dateKey = startDateKey; 
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
     
     const existingData = history[dateKey];
     let totalDiffSec = diffSec;
     
-    // 就寝時間(start)と起床時間(end)の初期値を、今回の計測時間に設定
     let finalStart = formatTime(startTime);
     let finalEnd = formatTime(endTime);
     
@@ -664,7 +622,6 @@ endBtn.addEventListener('click', () => {
 
     if (existingData && existingData.diffSec !== undefined) {
         totalDiffSec += existingData.diffSec;
-        // すでに目標設定時のデータ（就寝・起床時間）が記録されている場合は、それを維持する
         if (existingData.start) {
             finalStart = existingData.start;
             finalEnd = existingData.end;
@@ -676,7 +633,6 @@ endBtn.addEventListener('click', () => {
     const totalS = totalDiffSec % 60;
     const totalDurationText = `${totalH}時間 ${totalM}分 ${totalS}秒`;
 
-    // 起床時間を設定した計測（目標あり）だった場合のみ、目標判定とスタンプ処理を行う
     if (isTargetMeasurement && targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
@@ -711,12 +667,10 @@ endBtn.addEventListener('click', () => {
         commentSection.classList.remove('hidden');
         commentInput.value = currentComment; 
     } else {
-        // 起床時間を設定していない通常計測の場合
         feedbackMessage.textContent = "結果の測定完了！（通常計測として記録しました）"; 
         feedbackMessage.style.color = "var(--text-color)";
         commentSection.classList.add('hidden');
         
-        // 通常計測の場合は、過去の就寝・起床時間をそのまま引き継ぐ（未設定なら空にする）
         if (existingData) {
             finalStart = existingData.start || "";
             finalEnd = existingData.end || "";
@@ -726,7 +680,6 @@ endBtn.addEventListener('click', () => {
         }
     }
 
-    // 履歴を保存
     history[dateKey] = { 
         start: finalStart, 
         end: finalEnd, 
@@ -741,7 +694,7 @@ endBtn.addEventListener('click', () => {
     currentCommentDateKey = dateKey; 
     renderCalendar(); 
     renderShopAndInventory(); 
-    updateTargetDisplay(); // 画面の表示を更新
+    updateTargetDisplay(); 
     switchSleepState('after');
 });
 
@@ -751,14 +704,11 @@ errorModalCloseBtn.addEventListener('click', () => {
     localStorage.removeItem('isTargetMeasurement');
     errorModal.classList.add('hidden');
     switchSleepState('before');
-    updateTargetDisplay(); // エラー後も未設定状態を反映
+    updateTargetDisplay(); 
 });
 
 completeBtn.addEventListener('click', () => {
-    // ホーム画面（計測前）の状態に戻す
     switchSleepState('before');
-    
-    // 次回の計測のためにコメント欄を空にしておく
     commentInput.value = "";
 });
 
@@ -779,18 +729,14 @@ navButtons.forEach(btn => {
 // ==========================================
 // 11. 画面起動時の初期化処理
 // ==========================================
-// 1. 保存されているスタンプ数や目標の表示を更新
 setTotalStamps(getTotalStamps());
 updateTargetDisplay();
 renderCalendar();
 
-// 2. テーマを適用（ダークモードは質素な青アクセントに変更済み。危険色も連動）
 applyTheme(localStorage.getItem('currentTheme') || 'light');
 
-// 3. カレンダー方式（◀ ▶ ボタン）になったショップとインベントリを描画
 renderShopAndInventory();
 
-// 4. 睡眠計測の状態を復元
 const savedStartTime = localStorage.getItem('sleepStartTime');
 if (savedStartTime) {
     switchSleepState('during');
