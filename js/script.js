@@ -67,8 +67,6 @@ const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
 const commentSection = document.getElementById('comment-section');
 const commentInput = document.getElementById('comment-input');
 
-const MIN_DURATION_SEC = 3;   
-const MAX_DURATION_SEC = 300000; 
 let displayDate = new Date();
 let pendingPurchase = null; 
 let currentCommentDateKey = null; 
@@ -609,13 +607,24 @@ endBtn.addEventListener('click', () => {
         localStorage.removeItem('targetWakeUpTime'); 
     }
 
-    if (diffSec < MIN_DURATION_SEC) {
-        errorModalMessage.textContent = `${MIN_DURATION_SEC}秒以下は計測できません。`;
+    // ========== 【修正】1. 計測範囲のエラーチェック ==========
+    let minDurationSec = 0;
+    const maxDurationSec = 20 * 3600; // 20時間 = 72000秒
+
+    // 起床目標時間が設定されているかどうかの判定
+    if (targetTimeStr) {
+        minDurationSec = 1 * 3600; // 1時間 = 3600秒
+    } else {
+        minDurationSec = 0; // 0分 = 0秒
+    }
+
+    if (diffSec < minDurationSec) {
+        errorModalMessage.textContent = targetTimeStr ? "1時間未満は計測できません。" : "0分未満は計測できません。";
         errorModal.classList.remove('hidden');
         return; 
     }
-    if (diffSec > MAX_DURATION_SEC) {
-        errorModalMessage.textContent = `${MAX_DURATION_SEC}秒以上は計測できません。`;
+    if (diffSec >= maxDurationSec) {
+        errorModalMessage.textContent = "20時間以上は計測できません。";
         errorModal.classList.remove('hidden');
         return;
     }
@@ -651,19 +660,24 @@ endBtn.addEventListener('click', () => {
     const totalS = totalDiffSec % 60;
     const totalDurationText = `${totalH}時間 ${totalM}分 ${totalS}秒`;
 
+    // ========== 【修正】2. スタンプ獲得の判定（前1時間〜後10分） ==========
     if (isTargetMeasurement && targetTimeStr) {
         const [targetHour, targetMin] = targetTimeStr.split(':').map(Number);
         const targetDate = new Date(endTime);
         targetDate.setHours(targetHour, targetMin, 0, 0);
-        const timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
+        
+        // 実際の起床時間と目標時間の差分（秒単位）
+        let timeGapSec = (endTime.getTime() - targetDate.getTime()) / 1000;
+
+        // 日付をまたぐ場合の簡易的な補正（念のため）
+        if (timeGapSec < -12 * 3600) timeGapSec += 24 * 3600;
+        if (timeGapSec > 12 * 3600) timeGapSec -= 24 * 3600;
 
         if (!isStampEarned) {
-            if (timeGapSec < -60) {
-                feedbackMessage.textContent = "早起きですね！"; feedbackMessage.style.color = "var(--primary-color)"; 
-            } else if (timeGapSec > 60) {
-                feedbackMessage.textContent = "寝坊ですかな？"; feedbackMessage.style.color = "#e67e22"; 
-            } else {
-                feedbackMessage.textContent = "いい調子ですね！"; feedbackMessage.style.color = "#2ecc71"; 
+            // 前1時間（-3600秒）から 後10分（+600秒）の範囲内であれば達成
+            if (timeGapSec >= -3600 && timeGapSec <= 600) {
+                feedbackMessage.textContent = "いい調子ですね！スタンプを獲得しました！"; 
+                feedbackMessage.style.color = "#2ecc71"; 
                 isStampEarned = true;
                 totalStamps += 1; 
                 
@@ -680,6 +694,12 @@ endBtn.addEventListener('click', () => {
                     feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！"; 
                 }
                 setTotalStamps(totalStamps);
+            } else if (timeGapSec < -3600) {
+                feedbackMessage.textContent = "早起きすぎます！起床目標時間から外れてしまいました。"; 
+                feedbackMessage.style.color = "var(--primary-color)"; 
+            } else {
+                feedbackMessage.textContent = "寝坊ですかな？起床目標時間から外れてしまいました。"; 
+                feedbackMessage.style.color = "#e67e22"; 
             }
         }
         commentSection.classList.remove('hidden');
