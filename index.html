@@ -180,13 +180,68 @@
     </div>
 
     <div id="help-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2>❓ ヘルプ</h2>
-            <div id="help-content" class="modal-inner-content text-left">
+    <div class="modal-content">
+        <h2>ヘルプ・使い方</h2>
+        <div class="modal-inner-content">
+            <div class="help-accordion">
+                
+                <div class="help-item">
+                    <button class="help-toggle-btn">1. 睡眠計測の基本的な使い方</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>計測開始：</strong>ホーム画面で「計測を開始する」ボタンを押すと睡眠の計測が始まります。</li>
+                            <li><strong>計測終了：</strong>起きたら「計測終了」ボタンを押してください。睡眠時間が計算されます。終了時に「今日の一言コメント」を残すことができます。</li>
+                            <li><strong>中断：</strong>「計測中断」を押した場合は、その回の記録は保存されません。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <button class="help-toggle-btn">2. 起床目標時間とスタンプについて</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>目標設定：</strong>設定メニューから「目標起床時間」をセットして計測すると、結果に応じてスタンプがもらえます。</li>
+                            <li><strong>スタンプ獲得条件：</strong>設定した目標時間の<strong>「前1時間 ～ 後10分」</strong>の間に計測を終了するとスタンプを獲得できます。</li>
+                            <li><strong>連続ボーナス：</strong>7日連続でスタンプを獲得すると、特別なボーナススタンプがもらえます。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <button class="help-toggle-btn">3. 計測ルールと日付の切り替わり</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>日付の切り替わり：</strong>アプリ内の日付は一律で<strong>「午前4時」</strong>に切り替わります（例：深夜2時に寝て起きた場合も、前日の睡眠として処理されます）。</li>
+                            <li><strong>計測時間の制限：</strong>目標時間を設定している場合は「1時間以上、20時間未満」、未設定の場合は「0分以上、20時間未満」でないとエラーになり記録できません。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <button class="help-toggle-btn">4. カレンダーと平均データ</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>カレンダー：</strong>スタンプマーク（💮）や日々の就寝・起床時間、残した一言コメントを確認できます。</li>
+                            <li><strong>平均データ：</strong>カレンダーの下部では、「直近7日間」「直近30日間」の平均睡眠時間や平均就寝・起床時刻が自動で集計されて表示されます。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <button class="help-toggle-btn">5. ショップと着せ替え</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>ショップ：</strong>集めたスタンプを使って、ショップタブで新しい背景テーマ（単色・2色・特殊テーマ）を購入できます。</li>
+                            <li><strong>着せ替え：</strong>購入したテーマは、設定メニューの「背景(着せ替え)の設定」からいつでも変更してアプリに適用できます。</li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
-            <button class="close-modal-btn danger-btn" data-target="help-modal">閉じる</button>
         </div>
+        <button class="close-modal-btn danger-btn" data-target="help-modal">閉じる</button>
     </div>
+</div>
 
     <script src="js/script.js"></script>
 </body>

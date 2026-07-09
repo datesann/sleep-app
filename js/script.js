@@ -500,21 +500,14 @@ function updateAverages() {
 
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
-    
-    // ========== 【修正】カレンダー上の「今日」を4時基準にする ==========
     const realToday = new Date(); 
-    if (realToday.getHours() < 4) {
-        realToday.setDate(realToday.getDate() - 1);
-    }
-    // ==========================================================
-
     const viewYear = displayDate.getFullYear(); 
     const viewMonth = displayDate.getMonth(); 
     
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
     const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
     prevMonthBtn.disabled = (monthDiff <= -1); 
-    nextMonthBtn.disabled = (monthDiff >= 1); 
+    nextMonthBtn.disabled = (monthDiff >= 1);  
 
     const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
     weekdays.forEach(day => {
@@ -804,3 +797,19 @@ if (savedStartTime) {
 } else {
     switchSleepState('before');
 }
+
+// ==========================================
+// 12. ヘルプアコーディオン開閉制御
+// ==========================================
+document.querySelectorAll('.help-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // ボタンの矢印の向きを切り替える（▲と▼）
+        btn.classList.toggle('open');
+        
+        // ボタンの次にある要素（.help-body）を取得して開閉する
+        const body = btn.nextElementSibling;
+        if (body) {
+            body.classList.toggle('hidden');
+        }
+    });
+});
