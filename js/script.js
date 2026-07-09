@@ -68,6 +68,9 @@ const commentSection = document.getElementById('comment-section');
 const commentInput = document.getElementById('comment-input');
 
 let displayDate = new Date();
+if (displayDate.getHours() < 4) {
+    displayDate.setDate(displayDate.getDate() - 1);
+}
 let pendingPurchase = null; 
 let currentCommentDateKey = null; 
 
@@ -497,14 +500,21 @@ function updateAverages() {
 
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
+    
+    // ========== 【修正】カレンダー上の「今日」を4時基準にする ==========
     const realToday = new Date(); 
+    if (realToday.getHours() < 4) {
+        realToday.setDate(realToday.getDate() - 1);
+    }
+    // ==========================================================
+
     const viewYear = displayDate.getFullYear(); 
     const viewMonth = displayDate.getMonth(); 
     
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
     const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
     prevMonthBtn.disabled = (monthDiff <= -1); 
-    nextMonthBtn.disabled = (monthDiff >= 1);  
+    nextMonthBtn.disabled = (monthDiff >= 1); 
 
     const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
     weekdays.forEach(day => {
