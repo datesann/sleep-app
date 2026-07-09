@@ -9,7 +9,7 @@ const setTargetBtn = document.getElementById('set-target-btn');
 const clearTargetBtn = document.getElementById('clear-target-btn');
 const currentTargetDisplay = document.getElementById('current-target-display');
 const mainTargetDisplay = document.getElementById('main-target-display'); 
-const wakeupErrorMessage = document.getElementById('wakeup-error-message'); // 🌟 モーダル用エラー要素追加
+const wakeupErrorMessage = document.getElementById('wakeup-error-message'); 
 
 const sleepStateBefore = document.getElementById('sleep-state-before');
 const sleepStateDuring = document.getElementById('sleep-state-during');
@@ -108,7 +108,7 @@ navHelpBtn.addEventListener('click', () => { if(!navHelpBtn.disabled) helpModal.
 goToWakeupBtn.addEventListener('click', () => {
     settingsMenuModal.classList.add('hidden');
     wakeupSettingModal.classList.remove('hidden');
-    wakeupErrorMessage.textContent = ""; // 🌟 開くときにエラー文言をクリア
+    wakeupErrorMessage.textContent = ""; 
 });
 goToBgBtn.addEventListener('click', () => {
     settingsMenuModal.classList.add('hidden');
@@ -357,6 +357,14 @@ modalNoBtn.addEventListener('click', () => {
 // ==========================================
 // 7. 目標時間の管理
 // ==========================================
+['focus', 'click'].forEach(evt => {
+    targetInput.addEventListener(evt, () => {
+        if (targetInput.value === "") {
+            targetInput.value = "00:00";
+        }
+    });
+});
+
 function updateTargetDisplay() {
     const savedTarget = localStorage.getItem('targetWakeUpTime');
     const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
@@ -374,7 +382,7 @@ function updateTargetDisplay() {
             mainTargetDisplay.textContent = "現在の目標時間: 未設定";
         }
     }
-    targetInput.value = ""; // 🌟 初期値を"00:00"ではなく空("")に変更して未入力テストをしやすくする
+    targetInput.value = ""; 
 }
 
 setTargetBtn.addEventListener('click', () => {
@@ -382,25 +390,25 @@ setTargetBtn.addEventListener('click', () => {
     const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
 
     if (targetMeasuredDate === todayStr) {
-        wakeupErrorMessage.textContent = "エラー: 本日の目標計測は完了しています。"; // 🌟 エラーの出力先を変更
+        wakeupErrorMessage.textContent = "エラー: 本日の目標計測は完了しています。"; 
         return;
     }
 
     if (targetInput.value) {
         localStorage.setItem('targetWakeUpTime', targetInput.value);
         updateTargetDisplay();
-        wakeupErrorMessage.textContent = ""; // 🌟 エラーをクリア
+        wakeupErrorMessage.textContent = ""; 
         wakeupSettingModal.classList.add('hidden');
         settingsMenuModal.classList.remove('hidden');
     } else {
-        wakeupErrorMessage.textContent = "時間が設定されていません"; // 🌟 期待値通りに出力先と文言を変更
+        wakeupErrorMessage.textContent = "時間が設定されていません"; 
     }
 });
 
 clearTargetBtn.addEventListener('click', () => {
     localStorage.removeItem('targetWakeUpTime');
     updateTargetDisplay();
-    wakeupErrorMessage.textContent = ""; // 🌟 エラーをクリア
+    wakeupErrorMessage.textContent = ""; 
 });
 
 // ==========================================
@@ -707,9 +715,29 @@ errorModalCloseBtn.addEventListener('click', () => {
     updateTargetDisplay(); 
 });
 
+// 🌟 変更点: コメントの保存処理を追加
 completeBtn.addEventListener('click', () => {
+    const commentText = commentInput.value.trim();
+    
+    // 現在の計測日付キーがある場合のみ保存処理を行う
+    if (currentCommentDateKey) {
+        const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
+        if (history[currentCommentDateKey]) {
+            // JS側でも250文字上限でカットして保存（二重の安全策）
+            history[currentCommentDateKey].comment = commentText.substring(0, 250);
+            localStorage.setItem('sleepAppHistory', JSON.stringify(history));
+            
+            // カレンダーを再描画してコメントを反映
+            renderCalendar(); 
+        }
+    }
+
+    // ホーム画面（計測前）の状態に戻す
     switchSleepState('before');
+    
+    // 次回の計測のためにリセット
     commentInput.value = "";
+    currentCommentDateKey = null; 
 });
 
 // ==========================================

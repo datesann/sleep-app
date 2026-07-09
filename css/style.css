@@ -15,7 +15,7 @@ body {
     font-family: sans-serif;
     text-align: center;
     margin: 0;
-    padding-top: 80px; /* タイトル削除に伴い、コンテンツが上に行き過ぎないよう調整 */
+    padding-top: 80px;
     padding-bottom: 70px; 
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -60,7 +60,6 @@ body {
     background-color: var(--primary-color);
     color: white;
 }
-/* 設定・ヘルプボタンが無効(disabled)になった時のデザイン */
 .icon-btn:disabled {
     background-color: #bdc3c7;
     border-color: #bdc3c7;
@@ -94,7 +93,6 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-/* 横並びボタン・時間表示の共通ベース */
 .button-group-row, .time-row {
     display: flex;
     justify-content: center;
@@ -202,7 +200,6 @@ body {
     box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
 }
 
-/* 計測中に他タブへ移動させないためのスタイル */
 .nav-btn:disabled {
     background-color: #7f8c8d;
     color: #bdc3c7;
@@ -246,14 +243,14 @@ button:disabled {
 .secondary-btn { background-color: var(--secondary-color); }
 
 .danger-btn {
-    background-color: var(--danger-color); /* 🌟 ここを変更！ */
+    background-color: var(--danger-color);
 }
 .danger-btn:disabled {
-    background-color: #bdc3c7; /* 無効化時のグレーはそのまま */
+    background-color: #bdc3c7;
 }
 
 .error {
-    color: var(--danger-color); /* 🌟 エラー文字の色も連動させると綺麗です！ */
+    color: var(--danger-color);
     font-weight: bold;
     margin-top: 10px;
 }
@@ -279,6 +276,8 @@ button:disabled {
     gap: 10px;
     margin-top: 5px;
 }
+
+/* 🌟 変更点: textarea向けに複数行対応・リサイズを許可 */
 #comment-input {
     flex: 1;
     padding: 10px;
@@ -288,17 +287,19 @@ button:disabled {
     font-size: 14px;
     background-color: var(--box-bg);
     color: var(--text-color);
+    
+    /* 複数行入力向けのデザイン追加 */
+    resize: vertical; 
+    min-height: 60px; 
+    max-height: 150px; 
+    font-family: inherit; 
+    line-height: 1.4; 
 }
 #comment-input:disabled {
     background-color: #e9ecef;
     border-color: #ccc;
     cursor: not-allowed;
     opacity: 0.7;
-}
-#save-comment-btn {
-    padding: 10px 20px;
-    margin: 0;
-    font-size: 14px;
 }
 
 .theme-section {
@@ -505,8 +506,6 @@ button:disabled {
 /* ==========================================
    平均データエリア（枠なし・横並びデザイン）
    ========================================== */
-
-/* 平均データのタイトル */
 .average-title {
     text-align: center;
     color: var(--primary-color);
@@ -515,23 +514,19 @@ button:disabled {
     margin-bottom: 10px;
 }
 
-/* 枠（背景・影）をなくし、「横並び」の設定のみ残す */
 #average-stats-wrapper {
     width: 100%;
     box-sizing: border-box;
     margin: 0 auto 20px auto; 
     padding: 0 10px;
-    
-    /* 横並びの指定 */
     display: flex; 
     flex-direction: row; 
     justify-content: space-between; 
     align-items: center; 
 }
 
-/* 各期間のブロック（7日間と30日間） */
 .stats-block {
-    flex: 1; /* 左右のブロックで幅を1:1で均等に分ける */
+    flex: 1; 
     text-align: center;
 }
 
@@ -547,28 +542,11 @@ button:disabled {
     color: var(--text-color);
 }
 
-/* 数値のハイライト */
 .highlight-val {
     font-weight: bold;
     color: var(--secondary-color);
 }
 
-/* 中央の区切り線（デザインのアクセント） */
-.stats-divider {
-    width: 1px;
-    background-color: var(--border-color); /* 色が薄すぎる場合は #ccc などに変更してください */
-    height: 90px;
-    margin: 0 10px;
-    opacity: 0.5;
-}
-
-/* 数値のハイライト */
-.highlight-val {
-    font-weight: bold;
-    color: var(--secondary-color);
-}
-
-/* 中央の区切り線（デザインのアクセント） */
 .stats-divider {
     width: 1px;
     background-color: var(--border-color);
