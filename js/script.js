@@ -135,26 +135,26 @@ backToMenuBtns.forEach(btn => {
 // 4. 着せ替えデータ定義
 // ==========================================
 const THEMES = {
-    "light": { name: "ライト (初期設定)", cost: 0, colors: { bg: "#f8f9fa", box: "#ffffff", primary: "#3498db", secondary: "#6c757d", text: "#333333", border: "#dee2e6", header: "#e9ecef", danger: "#e74c3c" } },
-    "dark": { name: "ダーク (質素な青)", cost: 0, colors: { bg: "#1e1e1e", box: "#2d2d2d", primary: "#3498db", secondary: "#5dade2", text: "#e0e0e0", border: "#444444", header: "#252525", danger: "#c0392b" } },
-    "single_red": { name: "単色：レッド", cost: 7, colors: { bg: "#fff5f5", box: "#ffffff", primary: "#e74c3c", secondary: "#c0392b", text: "#333333", border: "#fadbd8", header: "#f2d7d5", danger: "#2c3e50" } },
-    "single_blue": { name: "単色：ブルー", cost: 7, colors: { bg: "#f4f6f7", box: "#ffffff", primary: "#3498db", secondary: "#2980b9", text: "#333333", border: "#d6eaf8", header: "#ebf5fb", danger: "#e74c3c" } },
-    "single_yellow": { name: "単色：イエロー", cost: 7, colors: { bg: "#fcf9f2", box: "#ffffff", primary: "#f1c40f", secondary: "#f39c12", text: "#333333", border: "#f9e79f", header: "#fcf3cf", danger: "#e74c3c" } },
-    "single_green": { name: "単色：グリーン", cost: 7, colors: { bg: "#f4fcf6", box: "#ffffff", primary: "#2ecc71", secondary: "#27ae60", text: "#333333", border: "#d5f5e3", header: "#eaeded", danger: "#e74c3c" } },
-    "single_purple": { name: "単色：パープル", cost: 7, colors: { bg: "#f9f4fc", box: "#ffffff", primary: "#9b59b6", secondary: "#8e44ad", text: "#333333", border: "#ebdef0", header: "#f5eef8", danger: "#e74c3c" } },
-    "single_orange": { name: "単色：オレンジ", cost: 7, colors: { bg: "#fdf5e6", box: "#ffffff", primary: "#e67e22", secondary: "#d35400", text: "#333333", border: "#f5cba7", header: "#fae5d3", danger: "#c0392b" } },
-    "single_pink": { name: "単色：ピンク", cost: 7, colors: { bg: "#fdf2f8", box: "#ffffff", primary: "#ff9ff3", secondary: "#f368e0", text: "#333333", border: "#fadbd8", header: "#fbeee6", danger: "#e91e63" } },
-    "double_wb": { name: "2色：ホワイト＆ブラック", cost: 14, colors: { bg: "#ffffff", box: "#f8f9fa", primary: "#000000", secondary: "#333333", text: "#000000", border: "#000000", header: "#e0e0e0", danger: "#e74c3c" } },
-    "double_red_pink": { name: "2色：レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#2c3e50" } },
-    "double_yellow_green": { name: "2色：イエロー＆グリーン", cost: 14, colors: { bg: "#fafff0", box: "#ffffff", primary: "#f1c40f", secondary: "#2ecc71", text: "#333333", border: "#d5f5e3", header: "#f9e79f", danger: "#e67e22" } },
-    "double_blue_purple": { name: "2色：ブルー＆パープル", cost: 14, colors: { bg: "#f4f4fc", box: "#ffffff", primary: "#3498db", secondary: "#9b59b6", text: "#333333", border: "#d6eaf8", header: "#ebdef0", danger: "#c0392b" } },
-    "special_chocomint": { name: "特殊：チョコミント", cost: 30, colors: { bg: "#aaffc3", box: "#ffffff", primary: "#3e2723", secondary: "#5d4037", text: "#3e2723", border: "#81c784", header: "#aaffc3", danger: "#e74c3c" } },
-    "special_sakura": { name: "特殊：さくら抹茶", cost: 30, colors: { bg: "#fdeef4", box: "#ffffff", primary: "#4caf50", secondary: "#388e3c", text: "#4a4a4a", border: "#f8bbd0", header: "#c8e6c9", danger: "#e91e63" } },
-    "special_midnight": { name: "特殊：夜空の月", cost: 30, colors: { bg: "#0f0f2d", box: "#1b1b3a", primary: "#f1c40f", secondary: "#f39c12", text: "#ffffff", border: "#34495e", header: "#0f0f2d", danger: "#e74c3c" } },
-    "special_latte": { name: "特殊：カフェラテ", cost: 30, colors: { bg: "#f3e5d8", box: "#ffffff", primary: "#8d6e63", secondary: "#5d4037", text: "#4e342e", border: "#d7ccc8", header: "#e4d0c8", danger: "#a67c52" } },
-    "special_honey": { name: "特殊：ハニーレモン", cost: 30, colors: { bg: "#fffacd", box: "#ffffff", primary: "#ffd700", secondary: "#32cd32", text: "#8b4513", border: "#f0e68c", header: "#fffacd", danger: "#ff4500" } },
-    "special_wagashi": { name: "特殊：和菓子(あずき)", cost: 30, colors: { bg: "#f5f5f5", box: "#ffffff", primary: "#800000", secondary: "#556b2f", text: "#2f4f4f", border: "#dcdcdc", header: "#faf0e6", danger: "#8b0000" } },
-    "special_forest": { name: "特殊：深い森", cost: 30, colors: { bg: "#e9f5e9", box: "#ffffff", primary: "#228b22", secondary: "#8b4513", text: "#004225", border: "#c8e6c9", header: "#f5f5dc", danger: "#b22222" } }
+    "light": { name: "ライト", cost: 0, colors: { bg: "#f8f9fa", box: "#ffffff", primary: "#3498db", secondary: "#6c757d", text: "#333333", border: "#dee2e6", header: "#e9ecef", danger: "#e74c3c" } },
+    "dark": { name: "ダーク", cost: 0, colors: { bg: "#1e1e1e", box: "#2d2d2d", primary: "#3498db", secondary: "#5dade2", text: "#e0e0e0", border: "#444444", header: "#252525", danger: "#c0392b" } },
+    "single_red": { name: "レッド", cost: 7, colors: { bg: "#fff5f5", box: "#ffffff", primary: "#e74c3c", secondary: "#c0392b", text: "#333333", border: "#fadbd8", header: "#f2d7d5", danger: "#2c3e50" } },
+    "single_blue": { name: "ブルー", cost: 7, colors: { bg: "#f4f6f7", box: "#ffffff", primary: "#3498db", secondary: "#2980b9", text: "#333333", border: "#d6eaf8", header: "#ebf5fb", danger: "#e74c3c" } },
+    "single_yellow": { name: "イエロー", cost: 7, colors: { bg: "#fcf9f2", box: "#ffffff", primary: "#f1c40f", secondary: "#f39c12", text: "#333333", border: "#f9e79f", header: "#fcf3cf", danger: "#e74c3c" } },
+    "single_green": { name: "グリーン", cost: 7, colors: { bg: "#f4fcf6", box: "#ffffff", primary: "#2ecc71", secondary: "#27ae60", text: "#333333", border: "#d5f5e3", header: "#eaeded", danger: "#e74c3c" } },
+    "single_purple": { name: "パープル", cost: 7, colors: { bg: "#f9f4fc", box: "#ffffff", primary: "#9b59b6", secondary: "#8e44ad", text: "#333333", border: "#ebdef0", header: "#f5eef8", danger: "#e74c3c" } },
+    "single_orange": { name: "オレンジ", cost: 7, colors: { bg: "#fdf5e6", box: "#ffffff", primary: "#e67e22", secondary: "#d35400", text: "#333333", border: "#f5cba7", header: "#fae5d3", danger: "#c0392b" } },
+    "single_pink": { name: "ピンク", cost: 7, colors: { bg: "#fdf2f8", box: "#ffffff", primary: "#ff9ff3", secondary: "#f368e0", text: "#333333", border: "#fadbd8", header: "#fbeee6", danger: "#e91e63" } },
+    "double_wb": { name: "ホワイト＆ブラック", cost: 14, colors: { bg: "#ffffff", box: "#f8f9fa", primary: "#000000", secondary: "#333333", text: "#000000", border: "#000000", header: "#e0e0e0", danger: "#e74c3c" } },
+    "double_red_pink": { name: "レッド＆ピンク", cost: 14, colors: { bg: "#fff0f5", box: "#ffffff", primary: "#e74c3c", secondary: "#fd79a8", text: "#333333", border: "#ffb8c6", header: "#fadbd8", danger: "#2c3e50" } },
+    "double_yellow_green": { name: "イエロー＆グリーン", cost: 14, colors: { bg: "#fafff0", box: "#ffffff", primary: "#f1c40f", secondary: "#2ecc71", text: "#333333", border: "#d5f5e3", header: "#f9e79f", danger: "#e67e22" } },
+    "double_blue_purple": { name: "ブルー＆パープル", cost: 14, colors: { bg: "#f4f4fc", box: "#ffffff", primary: "#3498db", secondary: "#9b59b6", text: "#333333", border: "#d6eaf8", header: "#ebdef0", danger: "#c0392b" } },
+    "special_chocomint": { name: "チョコミント", cost: 30, colors: { bg: "#aaffc3", box: "#ffffff", primary: "#3e2723", secondary: "#5d4037", text: "#3e2723", border: "#81c784", header: "#aaffc3", danger: "#e74c3c" } },
+    "special_sakura": { name: "さくら抹茶", cost: 30, colors: { bg: "#fdeef4", box: "#ffffff", primary: "#4caf50", secondary: "#388e3c", text: "#4a4a4a", border: "#f8bbd0", header: "#c8e6c9", danger: "#e91e63" } },
+    "special_midnight": { name: "夜空の月", cost: 30, colors: { bg: "#0f0f2d", box: "#1b1b3a", primary: "#f1c40f", secondary: "#f39c12", text: "#ffffff", border: "#34495e", header: "#0f0f2d", danger: "#e74c3c" } },
+    "special_latte": { name: "カフェラテ", cost: 30, colors: { bg: "#f3e5d8", box: "#ffffff", primary: "#8d6e63", secondary: "#5d4037", text: "#4e342e", border: "#d7ccc8", header: "#e4d0c8", danger: "#a67c52" } },
+    "special_honey": { name: "ハニーレモン", cost: 30, colors: { bg: "#fffacd", box: "#ffffff", primary: "#ffd700", secondary: "#32cd32", text: "#8b4513", border: "#f0e68c", header: "#fffacd", danger: "#ff4500" } },
+    "special_wagashi": { name: "和菓子(あずき)", cost: 30, colors: { bg: "#f5f5f5", box: "#ffffff", primary: "#800000", secondary: "#556b2f", text: "#2f4f4f", border: "#dcdcdc", header: "#faf0e6", danger: "#8b0000" } },
+    "special_forest": { name: "深い森", cost: 30, colors: { bg: "#e9f5e9", box: "#ffffff", primary: "#228b22", secondary: "#8b4513", text: "#004225", border: "#c8e6c9", header: "#f5f5dc", danger: "#b22222" } }
 };
 
 // ==========================================
@@ -216,7 +216,7 @@ function renderShopAndInventory() {
             const card = document.createElement('div');
             card.className = "theme-card";
             const info = document.createElement('div');
-            info.innerHTML = `<h4>${theme.name}</h4><span>入手済み</span>`;
+            info.innerHTML = `<h4>${theme.name}</h4>`;
 
             const actionBtn = document.createElement('button');
             if (currentTheme === id) {
@@ -233,9 +233,9 @@ function renderShopAndInventory() {
     }
 
     const categories = [
-        { key: 'single', label: '🎨 単色テーマ (7スタンプ)' },
-        { key: 'double', label: '🌓 2色組み合わせ (14スタンプ)' },
-        { key: 'special', label: '✨ 特殊テーマ (30スタンプ)' }
+        { key: 'single', label: '単色テーマ' },
+        { key: 'double', label: '2色テーマ' },
+        { key: 'special', label: '特殊テーマ' }
     ];
 
     let activeIdx = parseInt(localStorage.getItem('currentShopCategoryIdx') || '0', 10);
@@ -296,7 +296,7 @@ function renderShopAndInventory() {
             card.className = "theme-card";
             const info = document.createElement('div');
             const displayName = theme.name.includes('：') ? theme.name.split('：')[1] : theme.name;
-            info.innerHTML = `<h4>${displayName}</h4><span>🪙 ${theme.cost}</span>`;
+            info.innerHTML = `<h4>${displayName}</h4><span>💮 ${theme.cost}</span>`;
 
             const actionBtn = document.createElement('button');
             actionBtn.textContent = "購入";
@@ -374,15 +374,15 @@ function updateTargetDisplay() {
     const todayStr = getAppDateString(new Date());
 
     if (savedTarget) {
-        currentTargetDisplay.textContent = `現在の目標: ${savedTarget}`;
-        mainTargetDisplay.textContent = `現在の目標時間: ${savedTarget}`;
+        currentTargetDisplay.textContent = `現在の設定時間：${savedTarget}`;
+        mainTargetDisplay.textContent = `起床予定時間：${savedTarget}`;
     } else {
         if (targetMeasuredDate === todayStr) {
-            currentTargetDisplay.textContent = "現在の目標: 未設定 (本日分は計測済み)";
-            mainTargetDisplay.textContent = "現在の目標時間: 未設定 (本日分は計測済み)";
+            currentTargetDisplay.textContent = "現在の設定時間：未設定（本日分は計測済み）";
+            mainTargetDisplay.textContent = "起床予定時間：未設定（本日分は計測済み）";
         } else {
-            currentTargetDisplay.textContent = "現在の目標: 未設定";
-            mainTargetDisplay.textContent = "現在の目標時間: 未設定";
+            currentTargetDisplay.textContent = "現在の設定時間：未設定";
+            mainTargetDisplay.textContent = "起床予定時間：未設定";
         }
     }
     targetInput.value = ""; 
@@ -393,7 +393,7 @@ setTargetBtn.addEventListener('click', () => {
     const targetMeasuredDate = localStorage.getItem('targetMeasuredDate');
 
     if (targetMeasuredDate === todayStr) {
-        wakeupErrorMessage.textContent = "エラー: 本日の目標計測は完了しています。"; 
+        wakeupErrorMessage.textContent = "本日の計測は完了しているため設定できません"; 
         return;
     }
 
@@ -536,7 +536,7 @@ function renderCalendar() {
             const data = history[dateKey];
             if (data.hasStamp) {
                 const stampDiv = document.createElement("div");
-                stampDiv.className = "day-stamp"; stampDiv.textContent = data.isBonus ? "💮🎁✨" : "💮"; dayCell.appendChild(stampDiv);
+                stampDiv.className = "day-stamp"; stampDiv.textContent = data.isBonus ? "💮🎁" : "💮"; dayCell.appendChild(stampDiv);
             }
             const infoDiv = document.createElement("div");
             infoDiv.className = "day-info";
@@ -603,7 +603,7 @@ endBtn.addEventListener('click', () => {
 
     const diffSec = Math.floor((endTime.getTime() - startTimeMs) / 1000);
     const currentDurationText = `${Math.floor(diffSec / 3600)}時間 ${Math.floor((diffSec % 3600) / 60)}分 ${diffSec % 60}秒`;
-    durationDisplay.textContent = `今回の睡眠: ${currentDurationText}`;
+    durationDisplay.textContent = `睡眠時間：${currentDurationText}`;
 
     if (isTargetMeasurement) {
         localStorage.setItem('targetMeasuredDate', startDateKey);
@@ -622,12 +622,12 @@ endBtn.addEventListener('click', () => {
     }
 
     if (diffSec < minDurationSec) {
-        errorModalMessage.textContent = targetTimeStr ? "1時間未満は計測できません。" : "0分未満は計測できません。";
+        errorModalMessage.textContent = targetTimeStr ? "1時間未満は計測できません" : "0分未満は計測できません";
         errorModal.classList.remove('hidden');
         return; 
     }
     if (diffSec >= maxDurationSec) {
-        errorModalMessage.textContent = "20時間以上は計測できません。";
+        errorModalMessage.textContent = "20時間以上は計測できません";
         errorModal.classList.remove('hidden');
         return;
     }
@@ -679,7 +679,7 @@ endBtn.addEventListener('click', () => {
         if (!isStampEarned) {
             // 前1時間（-3600秒）から 後10分（+600秒）の範囲内であれば達成
             if (timeGapSec >= -3600 && timeGapSec <= 600) {
-                feedbackMessage.textContent = "いい調子ですね！スタンプを獲得しました！"; 
+                feedbackMessage.textContent = "おはようございます！いい調子ですね！（スタンプを獲得しました）"; 
                 feedbackMessage.style.color = "#2ecc71"; 
                 isStampEarned = true;
                 totalStamps += 1; 
@@ -694,21 +694,21 @@ endBtn.addEventListener('click', () => {
                 if (consecutiveDays === 7) { 
                     totalStamps += 1; 
                     isBonusEarned = true; 
-                    feedbackMessage.textContent += " 🎉 7日連続ボーナス獲得！"; 
+                    feedbackMessage.textContent += "（7日連続ボーナス獲得🎁）"; 
                 }
                 setTotalStamps(totalStamps);
             } else if (timeGapSec < -3600) {
-                feedbackMessage.textContent = "早起きすぎます！起床目標時間から外れてしまいました。"; 
+                feedbackMessage.textContent = "おはようございます！早起きですね！"; 
                 feedbackMessage.style.color = "var(--primary-color)"; 
             } else {
-                feedbackMessage.textContent = "寝坊ですかな？起床目標時間から外れてしまいました。"; 
+                feedbackMessage.textContent = "おはようございます！寝坊ですか？"; 
                 feedbackMessage.style.color = "#e67e22"; 
             }
         }
         commentSection.classList.remove('hidden');
         commentInput.value = currentComment; 
     } else {
-        feedbackMessage.textContent = "結果の測定完了！（通常計測として記録しました）"; 
+        feedbackMessage.textContent = "おはようございます！ゆっくり休めましたか？"; 
         feedbackMessage.style.color = "var(--text-color)";
         commentSection.classList.add('hidden');
         

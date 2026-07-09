@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>睡眠管理アプリ - タブレイアウト版</title>
+    <title>睡眠管理アプリ</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
 
     <div id="tab-sleep" class="tab-content active">
         <div id="sleep-state-before" class="sleep-state-panel">
-            <p id="main-target-display" class="target-display-large">現在の目標時間: 未設定</p>
+            <p id="main-target-display" class="target-display-large">起床予定時間：未設定</p>
             <button id="start-btn" class="large-btn">計測を開始する</button>
         </div>
 
@@ -41,30 +41,30 @@
                 </div>
             </div>
 
-            <h2 id="duration-display" class="duration-highlight">睡眠時間: --時間 --分 --秒</h2>
+            <h2 id="duration-display" class="duration-highlight">睡眠時間：--時間 --分 --秒</h2>
             
             <div id="comment-section" class="comment-section">
-                <label for="comment-input">💬 今日の一言コメント:</label>
+                <label for="comment-input">💬 今日の一言コメント：</label>
                 <div class="comment-input-group">
-                    <textarea id="comment-input" placeholder="今日の一言を入力してください（250文字まで）" maxlength="250" rows="3"></textarea>
+                    <textarea id="comment-input" placeholder="今日の一言を入力してください（上限：250文字）" maxlength="250" rows="3"></textarea>
                 </div>
             </div>
             
             <p id="error-message" class="error"></p>
-            <button id="complete-btn" class="secondary-btn wide-btn">完了（記録を保存して戻る）</button>
+            <button id="complete-btn" class="secondary-btn wide-btn">完了</button>
         </div>
     </div>
 
     <div id="tab-calendar" class="tab-content">
         
-        <h2 class="average-title">📊 平均データ</h2>
+        <h2 class="average-title">平均データ</h2>
         <div id="average-stats-wrapper">
             <div class="stats-block">
                 <h3>直近7日間</h3>
                 <div class="avg-content">
-                    <p>睡眠: <span id="avg-sleep-7" class="highlight-val">--時間 --分</span></p>
-                    <p>就寝: <span id="avg-start-7" class="highlight-val">--:--</span></p>
-                    <p>起床: <span id="avg-end-7" class="highlight-val">--:--</span></p>
+                    <p>就寝時間：<span id="avg-start-7" class="highlight-val">--:--</span></p>
+                    <p>起床時間：<span id="avg-end-7" class="highlight-val">--:--</span></p>
+                    <p>睡眠時間：<span id="avg-sleep-7" class="highlight-val">--時間 --分</span></p>
                 </div>
             </div>
             
@@ -73,9 +73,9 @@
             <div class="stats-block">
                 <h3>直近30日間</h3>
                 <div class="avg-content">
-                    <p>睡眠: <span id="avg-sleep-30" class="highlight-val">--時間 --分</span></p>
-                    <p>就寝: <span id="avg-start-30" class="highlight-val">--:--</span></p>
-                    <p>起床: <span id="avg-end-30" class="highlight-val">--:--</span></p>
+                    <p>就寝時間：<span id="avg-start-30" class="highlight-val">--:--</span></p>
+                    <p>起床時間：<span id="avg-end-30" class="highlight-val">--:--</span></p>
+                    <p>睡眠時間：<span id="avg-sleep-30" class="highlight-val">--時間 --分</span></p>
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-btn active" data-target="tab-sleep">睡眠管理</button>
+        <button class="nav-btn active" data-target="tab-sleep">睡眠計測</button>
         <button class="nav-btn" data-target="tab-calendar">カレンダー</button>
         <button class="nav-btn" data-target="tab-shop">ショップ</button>
     </nav>
@@ -118,7 +118,7 @@
 
     <div id="apply-prompt-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <p id="apply-modal-message">購入完了しました！<br>今すぐこの着せ替えに変更しますか？</p>
+            <p id="apply-modal-message">購入完了！<br>購入した着せ替えに変更しますか？</p>
             <div class="modal-buttons">
                 <button id="apply-yes-btn">はい</button>
                 <button id="apply-no-btn" class="danger-btn">いいえ</button>
@@ -149,7 +149,7 @@
             <h2>⚙️ 設定メニュー</h2>
             <div class="settings-options">
                 <button id="go-to-wakeup-btn" class="menu-btn">⏰ 起床時間の設定</button>
-                <button id="go-to-bg-btn" class="menu-btn">🎨 背景(着せ替え)の設定</button>
+                <button id="go-to-bg-btn" class="menu-btn">🎨 着せ替えの変更</button>
             </div>
             <button class="close-modal-btn danger-btn" data-target="settings-menu-modal">閉じる</button>
         </div>
@@ -157,14 +157,14 @@
 
     <div id="wakeup-setting-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2>⏰ 起床時間の設定</h2>
+            <h2>起床時間の設定</h2>
             <div class="modal-inner-content">
                 <input type="time" id="target-time-input" value="">
                 <br>
-                <button id="set-target-btn">目標を保存</button>
-                <button id="clear-target-btn" class="danger-btn">目標を削除</button>
+                <button id="set-target-btn">設定を保存</button>
+                <button id="clear-target-btn" class="danger-btn">設定を削除</button>
                 <p id="wakeup-error-message" style="color: #e74c3c; font-weight: bold; margin-top: 15px;"></p>
-                <p id="current-target-display">現在の目標: 未設定</p>
+                <p id="current-target-display">現在の設定時間：未設定</p>
             </div>
             <button class="back-to-menu-btn danger-btn" data-current="wakeup-setting-modal">戻る</button>
         </div>
@@ -172,7 +172,7 @@
 
     <div id="bg-setting-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2>👗 所持している着せ替え</h2>
+            <h2>着せ替え一覧</h2>
             <div id="inventory-items" class="theme-grid modal-inner-content">
             </div>
             <button class="back-to-menu-btn danger-btn" data-current="bg-setting-modal">戻る</button>
@@ -186,53 +186,63 @@
             <div class="help-accordion">
                 
                 <div class="help-item">
-                    <button class="help-toggle-btn">1. 睡眠計測の基本的な使い方</button>
+                    <button class="help-toggle-btn">睡眠計測のやり方</button>
                     <div class="help-body hidden">
                         <ul>
                             <li><strong>計測開始：</strong>ホーム画面で「計測を開始する」ボタンを押すと睡眠の計測が始まります。</li>
-                            <li><strong>計測終了：</strong>起きたら「計測終了」ボタンを押してください。睡眠時間が計算されます。終了時に「今日の一言コメント」を残すことができます。</li>
+                            <li><strong>計測終了：</strong>起床したら「計測終了」ボタンを押してください。これにより、睡眠時間が算出されます。</li>
                             <li><strong>中断：</strong>「計測中断」を押した場合は、その回の記録は保存されません。</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="help-item">
-                    <button class="help-toggle-btn">2. 起床目標時間とスタンプについて</button>
+                    <button class="help-toggle-btn">起床予定時間について</button>
                     <div class="help-body hidden">
                         <ul>
-                            <li><strong>目標設定：</strong>設定メニューから「目標起床時間」をセットして計測すると、結果に応じてスタンプがもらえます。</li>
-                            <li><strong>スタンプ獲得条件：</strong>設定した目標時間の<strong>「前1時間 ～ 後10分」</strong>の間に計測を終了するとスタンプを獲得できます。</li>
-                            <li><strong>連続ボーナス：</strong>7日連続でスタンプを獲得すると、特別なボーナススタンプがもらえます。</li>
+                            <li><strong>起床時間の設定：</strong>設定メニューから起床時間を設定することができます。</li>
+                            <li><strong>設定の保存：</strong>起床時間を選択し、「設定を保存」ボタンを押すことで、起床予定時間が保存されます。</li>
+                            <li><strong>設定の削除：</strong>「設定を削除」ボタンを押すことで、起床予定時間を削除することができます。削除すると未設定扱いとなり、スタンプを獲得することができません。</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="help-item">
-                    <button class="help-toggle-btn">3. 計測ルールと日付の切り替わり</button>
+                    <button class="help-toggle-btn">スタンプ獲得について</button>
                     <div class="help-body hidden">
                         <ul>
-                            <li><strong>日付の切り替わり：</strong>アプリ内の日付は一律で<strong>「午前4時」</strong>に切り替わります（例：深夜2時に寝て起きた場合も、前日の睡眠として処理されます）。</li>
-                            <li><strong>計測時間の制限：</strong>目標時間を設定している場合は「1時間以上、20時間未満」、未設定の場合は「0分以上、20時間未満」でないとエラーになり記録できません。</li>
+                            <li><strong>スタンプ獲得条件：</strong>設定した起床時間の前1時間 ～ 後10分の間に計測を終了するとスタンプを獲得できます。</li>
+                            <li><strong>連続ボーナス：</strong>7日連続でスタンプを獲得すると、ボーナスとしてもう1つスタンプがもらえます。</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="help-item">
-                    <button class="help-toggle-btn">4. カレンダーと平均データ</button>
+                    <button class="help-toggle-btn">計測ルールについて</button>
                     <div class="help-body hidden">
                         <ul>
-                            <li><strong>カレンダー：</strong>スタンプマーク（💮）や日々の就寝・起床時間、残した一言コメントを確認できます。</li>
-                            <li><strong>平均データ：</strong>カレンダーの下部では、「直近7日間」「直近30日間」の平均睡眠時間や平均就寝・起床時刻が自動で集計されて表示されます。</li>
+                            <li><strong>日付の切り替わり：</strong>アプリ内の日付は一律で午前4時に切り替わります（例：深夜2時に寝た場合も、前日の睡眠として処理されます）。</li>
+                            <li><strong>計測時間の制限：</strong>起床時間を設定している場合は1時間以上＆20時間未満、未設定の場合は20時間未満でないとエラーになり記録できません。</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="help-item">
-                    <button class="help-toggle-btn">5. ショップと着せ替え</button>
+                    <button class="help-toggle-btn">カレンダーについて</button>
                     <div class="help-body hidden">
                         <ul>
-                            <li><strong>ショップ：</strong>集めたスタンプを使って、ショップタブで新しい背景テーマ（単色・2色・特殊テーマ）を購入できます。</li>
-                            <li><strong>着せ替え：</strong>購入したテーマは、設定メニューの「背景(着せ替え)の設定」からいつでも変更してアプリに適用できます。</li>
+                            <li><strong>カレンダー：</strong>スタンプ獲得や日々の就寝・起床時間、睡眠時間（1日合計）、一言コメントを確認できます。</li>
+                            <li><strong>平均データ：</strong>カレンダー上部に直近7日間と直近30日間の平均睡眠時間や平均就寝・起床時刻が表示されます。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <button class="help-toggle-btn">着せ替えについて</button>
+                    <div class="help-body hidden">
+                        <ul>
+                            <li><strong>ショップ：</strong>集めたスタンプを使って、ショップタブで新しい着せ替えを購入できます。</li>
+                            <li><strong>着せ替え：</strong>購入したテーマは、設定メニューの「着せ替えの変更」から変更できます。</li>
                         </ul>
                     </div>
                 </div>
