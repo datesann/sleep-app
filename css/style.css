@@ -276,8 +276,6 @@ button:disabled {
     gap: 10px;
     margin-top: 5px;
 }
-
-/* 🌟 変更点: textarea向けに複数行対応・リサイズを許可 */
 #comment-input {
     flex: 1;
     padding: 10px;
@@ -288,7 +286,6 @@ button:disabled {
     background-color: var(--box-bg);
     color: var(--text-color);
     
-    /* 複数行入力向けのデザイン追加 */
     resize: vertical; 
     min-height: 60px; 
     max-height: 150px; 

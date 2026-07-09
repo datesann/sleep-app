@@ -357,6 +357,8 @@ modalNoBtn.addEventListener('click', () => {
 // ==========================================
 // 7. 目標時間の管理
 // ==========================================
+
+// ユーザーが入力欄を触ったとき、空欄なら「00:00」をセットする
 ['focus', 'click'].forEach(evt => {
     targetInput.addEventListener(evt, () => {
         if (targetInput.value === "") {
@@ -438,34 +440,41 @@ function formatAverageDuration(totalSecs) {
 
 function updateAverages() {
     const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
-    const today = new Date();
+    
+    // 🌟 修正1: 履歴から「有効な記録がある日」だけを抽出し、日付の新しい順に並べる
+    const validRecords = [];
+    const sortedKeys = Object.keys(history).sort().reverse();
+    
+    for (const key of sortedKeys) {
+        const data = history[key];
+        if (data && data.diffSec !== undefined && data.start && data.end) {
+            validRecords.push(data);
+        }
+    }
     
     let stats = {
         7: { sleepSec: 0, startMin: 0, endMin: 0, count: 0 },
         30: { sleepSec: 0, startMin: 0, endMin: 0, count: 0 }
     };
 
-    for (let i = 0; i < 30; i++) {
-        let d = new Date(today);
-        d.setDate(today.getDate() - i);
-        let dateKey = getLocalDateString(d);
-        let data = history[dateKey];
+    // 🌟 修正2: 新しい順にたどって、最大30回分の「記録」をカウントする
+    for (let i = 0; i < validRecords.length; i++) {
+        if (i >= 30) break; // 30回分集まったらストップ
         
-        if (data && data.diffSec !== undefined && data.start && data.end) {
-            let startM = timeToMinutes(data.start);
-            let endM = timeToMinutes(data.end);
-            
-            stats[30].sleepSec += data.diffSec;
-            stats[30].startMin += startM;
-            stats[30].endMin += endM;
-            stats[30].count++;
-            
-            if (i < 7) {
-                stats[7].sleepSec += data.diffSec;
-                stats[7].startMin += startM;
-                stats[7].endMin += endM;
-                stats[7].count++;
-            }
+        let data = validRecords[i];
+        let startM = timeToMinutes(data.start);
+        let endM = timeToMinutes(data.end);
+        
+        stats[30].sleepSec += data.diffSec;
+        stats[30].startMin += startM;
+        stats[30].endMin += endM;
+        stats[30].count++;
+        
+        if (i < 7) {
+            stats[7].sleepSec += data.diffSec;
+            stats[7].startMin += startM;
+            stats[7].endMin += endM;
+            stats[7].count++;
         }
     }
     
@@ -475,7 +484,8 @@ function updateAverages() {
         let startStr = "--:--";
         let endStr = "--:--";
         
-        if (count > 0) {
+        // 🌟 修正3: 「記録がある日数」が規定日数（7回・30回）に達した場合のみ計算
+        if (count === days) {
             sleepStr = formatAverageDuration(stats[days].sleepSec / count);
             startStr = minutesToTime(stats[days].startMin / count);
             endStr = minutesToTime(stats[days].endMin / count);
@@ -715,27 +725,20 @@ errorModalCloseBtn.addEventListener('click', () => {
     updateTargetDisplay(); 
 });
 
-// 🌟 変更点: コメントの保存処理を追加
 completeBtn.addEventListener('click', () => {
     const commentText = commentInput.value.trim();
     
-    // 現在の計測日付キーがある場合のみ保存処理を行う
     if (currentCommentDateKey) {
         const history = JSON.parse(localStorage.getItem('sleepAppHistory') || '{}');
         if (history[currentCommentDateKey]) {
-            // JS側でも250文字上限でカットして保存（二重の安全策）
             history[currentCommentDateKey].comment = commentText.substring(0, 250);
             localStorage.setItem('sleepAppHistory', JSON.stringify(history));
             
-            // カレンダーを再描画してコメントを反映
             renderCalendar(); 
         }
     }
 
-    // ホーム画面（計測前）の状態に戻す
     switchSleepState('before');
-    
-    // 次回の計測のためにリセット
     commentInput.value = "";
     currentCommentDateKey = null; 
 });
