@@ -500,12 +500,19 @@ function updateAverages() {
 
 function renderCalendar() {
     calendarGrid.innerHTML = ""; 
+    
+    // 【修正】カレンダー上の「今日」も午前4時基準で判定する
     const realToday = new Date(); 
+    const appToday = new Date(realToday.getTime());
+    if (appToday.getHours() < 4) {
+        appToday.setDate(appToday.getDate() - 1);
+    }
+    
     const viewYear = displayDate.getFullYear(); 
     const viewMonth = displayDate.getMonth(); 
     
     calendarTitle.textContent = `${viewYear}年 ${viewMonth + 1}月`;
-    const monthDiff = (viewYear - realToday.getFullYear()) * 12 + (viewMonth - realToday.getMonth());
+    const monthDiff = (viewYear - appToday.getFullYear()) * 12 + (viewMonth - appToday.getMonth());
     prevMonthBtn.disabled = (monthDiff <= -1); 
     nextMonthBtn.disabled = (monthDiff >= 1);  
 
@@ -524,7 +531,9 @@ function renderCalendar() {
     for (let day = 1; day <= totalDays; day++) {
         const dayCell = document.createElement("div");
         dayCell.className = "calendar-day";
-        if (day === realToday.getDate() && viewMonth === realToday.getMonth() && viewYear === realToday.getFullYear()) {
+        
+        // 【修正】realToday ではなく appToday と比較する
+        if (day === appToday.getDate() && viewMonth === appToday.getMonth() && viewYear === appToday.getFullYear()) {
             dayCell.classList.add("today");
         }
         
