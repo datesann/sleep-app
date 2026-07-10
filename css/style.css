@@ -214,11 +214,22 @@ body {
     background: var(--box-bg);
     padding: 20px;
     border-radius: 10px;
-    display: inline-block;
-    margin-bottom: 20px;
+    display: block; /* 変更: inline-block から block にして全幅を使えるようにする */
+    width: 95%; /* 変更: スマホ画面で画面幅に収まるよう調整 */
+    max-width: 900px;
+    box-sizing: border-box;
+    margin: 0 auto 20px auto; /* 変更: 中央揃え */
     border: 2px solid var(--border-color);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* ▼ 追加: スクロール用のコンテナスタイル ▼ */
+.calendar-scroll-container {
+    width: 100%;
+    overflow-x: auto; /* 横幅をはみ出した場合にスクロールバーを表示 */
+    -webkit-overflow-scrolling: touch; /* スマホでのスクロールを滑らかにする */
+    padding-bottom: 10px; /* スクロールバーがコンテンツに被らないように余白を追加 */
 }
 
 button {
@@ -357,6 +368,7 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
+    min-width: 700px; /* ▼ 追加: 7日分の列が潰れない「最低幅」を指定（1日あたり約100px） ▼ */
 }
 
 .calendar-header {
