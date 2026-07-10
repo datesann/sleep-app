@@ -1,5 +1,5 @@
-##起動方法
-↓以下のURLから起動することができます。
+##起動方法　　
+↓以下のURLから起動することができます。　　
 https://datesann.github.io/sleep-app/
 
 ##テスト結果
